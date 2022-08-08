@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api'
-  import Loading from '~icons/tabler/loader-2'
   import { save } from '@tauri-apps/api/dialog'
 
   import { inputName, inputPath, outputName } from '$stores/file'
@@ -17,11 +16,11 @@
     videoFrameBytes,
     type Options
   } from '$stores/options'
+  import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
 
-  // Send all the data needed for conversion when the "Convert" button is pressed
   const convert = async (): Promise<void> => {
     loading = true
 
@@ -42,12 +41,10 @@
       // [key in Model]: $model
     }
 
-    if ($model === Model.Tv96x64) await invoke('convert', { options })
-
-    if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
+    await invoke($model === Model.Tv96x64 ? 'convert' : 'convert_avi', { options })
     loading = false
 
-    // Trigger save dialog after a successful video conversion
+    // Trigger save dialog after a video conversion
     $inputPath = await save({
       defaultPath: `${$outputName}`,
       filters: [
@@ -123,8 +120,8 @@
         autocorrect="off"
         autocomplete="off"
         spellcheck="false"
-        minlength="1"
-        maxlength="46"
+        minlength={1}
+        maxlength={46}
         pattern="[\w\.- ]+"
         bind:value={$outputName}
         class="grow"

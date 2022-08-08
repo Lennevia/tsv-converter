@@ -143,7 +143,7 @@ fn sidecar_path(name: &str) -> PathBuf {
     }
 }
 
-/// Convert to Tiny Screen Video .TSV filetype
+/// Convert to Tiny Screen Video .tsv filetype.
 #[tauri::command]
 pub fn convert(options: Options<'_>) {
     let path = Path::new(&options.path);
@@ -179,10 +179,13 @@ pub fn convert(options: Options<'_>) {
     .stdin(Stdio::null())
     .stdout(Stdio::piped())
     .stderr(Stdio::null());
-    #[cfg(windows)] // This gets rid of the malware-looking Windows-exclusive pop up
-    video_cmd.creation_flags(0x08000000); // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-    let mut video_child = video_cmd.spawn().unwrap();
 
+    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+    #[cfg(windows)]
+    video_cmd.creation_flags(0x08000000);
+
+    let mut video_child = video_cmd.spawn().unwrap();
     let mut video_stdout = video_child.stdout.take().unwrap();
     let mut video_frame = vec![0; options.video_frame_bytes];
 
@@ -199,10 +202,11 @@ pub fn convert(options: Options<'_>) {
     .stdin(Stdio::null())
     .stdout(Stdio::piped())
     .stderr(Stdio::null());
+
     #[cfg(windows)]
     audio_cmd.creation_flags(0x08000000);
-    let mut audio_child = audio_cmd.spawn().unwrap();
 
+    let mut audio_child = audio_cmd.spawn().unwrap();
     let mut audio_stdout = audio_child.stdout.take().unwrap();
     let mut audio_frame = vec![0; options.audio_frame_bytes];
 
@@ -268,22 +272,25 @@ pub fn convert_avi(options: Options<'_>) {
     .stdin(Stdio::null())
     .stdout(Stdio::null())
     .stderr(Stdio::piped());
+
+    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
     #[cfg(windows)]
     cmd.creation_flags(0x08000000);
-    let mut child = cmd.spawn().unwrap();
 
-    let mut child_stderr = String::new();
+    let mut child = cmd.spawn().unwrap();
+    let mut stderr = String::new();
     child
         .stderr
         .take()
         .unwrap()
-        .read_to_string(&mut child_stderr)
+        .read_to_string(&mut stderr)
         .unwrap();
     child.wait().unwrap();
 
     #[cfg(debug_assertions)]
     {
-        dbg!(child_stderr);
+        dbg!(stderr);
         let elapsed = timer.elapsed();
         dbg!(elapsed);
     }

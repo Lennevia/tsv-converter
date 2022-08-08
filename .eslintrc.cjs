@@ -28,5 +28,22 @@ module.exports = {
         'import/first': 'off'
       }
     }
-  ]
+  ],
+  rules: {
+    'import/order': [
+      'error',
+      {
+        groups: [
+          'builtin',
+          'external',
+          ['internal', 'parent', 'sibling', 'index'],
+          ['object', 'type']
+        ],
+        'newlines-between': 'always',
+        alphabetize: {
+          order: 'asc'
+        }
+      }
+    ]
+  }
 }

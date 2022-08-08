@@ -1,11 +1,10 @@
 <script lang="ts">
-  import type { DialogFilter, OpenDialogOptions } from '@tauri-apps/api/dialog'
-  import { open } from '@tauri-apps/api/dialog'
-  import Loading from '~icons/tabler/loader-2'
+  import { open, type DialogFilter, type OpenDialogOptions } from '@tauri-apps/api/dialog'
   import { onMount } from 'svelte'
 
   import { ffprobe } from '$lib/fileUtils'
   import { inputError, inputPath } from '$stores/file'
+  import Loading from '~icons/tabler/loader-2'
 
   onMount(() => {
     if (document.activeElement instanceof HTMLElement) {

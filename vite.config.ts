@@ -1,19 +1,17 @@
 import { sveltekit } from '@sveltejs/kit/vite'
-import icons from 'unplugin-icons/vite'
-import { defineConfig } from 'vite'
-
-// postcss plugins
 import autoprefixer from 'autoprefixer'
 import cssnano from 'cssnano'
 import advancedPreset from 'cssnano-preset-advanced'
 import tailwindcss from 'tailwindcss'
 import nesting from 'tailwindcss/nesting/index.js'
+import icons from 'unplugin-icons/vite'
+import { defineConfig } from 'vite'
 
 export default defineConfig(({ mode }) => ({
   clearScreen: false,
   envPrefix: 'TSV_CONVERTER_',
-  build: {
-    cssCodeSplit: false
+  server: {
+    port: 3000
   },
   plugins: [
     sveltekit(),
