@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api'
-  import Loading from '~icons/tabler/loader-2'
   import { save } from '@tauri-apps/api/dialog'
 
   import { inputName, inputPath, outputName } from '$stores/file'
@@ -13,11 +12,12 @@
     model,
     sampleBitDepth,
     sampleRate,
+    savePath,
     scale,
     videoFrameBytes,
     type Options
   } from '$stores/options'
-  // import Loading from '~icons/tabler/loader-2'
+  import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
@@ -30,6 +30,7 @@
 
     const options: Options = {
       path: $inputPath,
+      savePath: $savePath,
       outputName: $outputName,
       scale: $scale,
 
@@ -43,12 +44,8 @@
       // [key in Model]: $model
     }
 
-    if ($model === Model.Tv96x64) await invoke('convert', { options })
-    if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
-    loading = false
-
-    // Trigger save dialog after a video conversion
-    $inputPath = await save({
+    // Trigger save dialog before a video conversion
+    $savePath = await save({
       defaultPath: `${$outputName}`,
       filters: [
         {
@@ -57,6 +54,11 @@
         }
       ]
     })
+    console.log('Save path is: ', { $savePath })
+
+    if ($model === Model.Tv96x64) await invoke('convert', { options })
+    if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
+    loading = false
   }
 </script>
 

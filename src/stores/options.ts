@@ -16,6 +16,7 @@ export enum Model {
 /** Video conversion options. */
 export interface Options {
   path: string
+  savePath: string
   outputName: string
   scale: string
 
@@ -31,6 +32,8 @@ export interface Options {
 
 /** Video duration in seconds. */
 export const duration = writable(NaN)
+
+export const savePath = writable('')
 
 /** TV variables */
 export const model = writable(Model.Tv96x64) // Default selected option
