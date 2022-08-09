@@ -43,7 +43,8 @@
       // [key in Model]: $model
     }
 
-    await invoke($model === Model.Tv96x64 ? 'convert' : 'convert_avi', { options })
+    if ($model === Model.Tv96x64) await invoke('convert', { options })
+    if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
     loading = false
 
     // Trigger save dialog after a video conversion
