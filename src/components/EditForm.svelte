@@ -17,7 +17,7 @@
     videoFrameBytes,
     type Options
   } from '$stores/options'
-  import Loading from '~icons/tabler/loader-2'
+  // import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
