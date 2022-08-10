@@ -10,7 +10,8 @@ export enum Crop {
 /** Tv model versions that determine method of conversion to use */
 export enum Model {
   Tv96x64 = 'TinyTV - 96x64',
-  Tv240x135 = 'TV - 240x135'
+  Tv240x135 = 'TV - 240x135',
+  Tv64x64 = 'TinyTVmini - 64x64'
 }
 
 /** Video conversion options. */
@@ -33,7 +34,7 @@ export interface Options {
 /** Video duration in seconds. */
 export const duration = writable(NaN)
 
-export const savePath = writable('')
+export const savePath = writable('testthathisisremoved')
 
 /** TV variables */
 export const model = writable(Model.Tv96x64) // Default selected option
@@ -44,6 +45,8 @@ export const width = derived(model, ($model) => {
       return 96
     case Model.Tv240x135:
       return 216 // changed from 240
+    case Model.Tv64x64:
+      return 64
   }
 })
 export const height = derived(model, ($model) => {
@@ -52,6 +55,8 @@ export const height = derived(model, ($model) => {
       return 64
     case Model.Tv240x135:
       return 135
+    case Model.Tv64x64:
+      return 64
   }
 })
 export const sampleBitDepth = derived(model, ($model) => {
@@ -60,6 +65,8 @@ export const sampleBitDepth = derived(model, ($model) => {
       return 10
     case Model.Tv240x135:
       return 8
+    case Model.Tv64x64:
+      return 10 // TODO
   }
 })
 export const frameRate = derived(model, ($model) => {
@@ -68,13 +75,15 @@ export const frameRate = derived(model, ($model) => {
       return 30
     case Model.Tv240x135:
       return 24
+    case Model.Tv64x64:
+      return 30 // TODO
   }
 })
 
-// video
+// Video
 export const videoFrameBytes = derived([width, height], ([$width, $height]) => 2 * $width * $height)
 
-// audio
+// Audio values for Tv96x64
 export const sampleCountPerFrame = 2 * 512
 export const audioFrameBytes = 2 * sampleCountPerFrame
 export const sampleRate = derived(frameRate, ($frameRate) => {
@@ -84,9 +93,9 @@ export const totalFrames = derived([duration, frameRate], ([$duration, $frameRat
   return $duration * $frameRate
 })
 
-// crop video options
+// Crop video options
 export const crop = writable(Crop.Contain) // Default selected option
-// this link might be helpful for future cropping: https://www.linuxuprising.com/2020/01/ffmpeg-how-to-crop-videos-with-examples.html
+// This link might be helpful for future cropping: https://www.linuxuprising.com/2020/01/ffmpeg-how-to-crop-videos-with-examples.html
 export const scale = derived([crop, width, height, model], ([$crop, $width, $height, $model]) => {
   switch ($crop) {
     case Crop.Contain:
@@ -95,6 +104,8 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
           return `scale=${$width}:${$height}`
         case Model.Tv240x135:
           return `scale=-1:${$height},pad=${$width}:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
+        case Model.Tv64x64:
+          return `scale=${$width}:${$height}` // TODO
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Cover:
@@ -102,7 +113,9 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
         case Model.Tv240x135:
-          return `scale=${$width}:-1,crop=${$width}:${$height},hqdn3d` // set height dynamically and then crop off extra height to give zoom effect
+          return `scale=${$width}:-1,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
+        case Model.Tv64x64:
+          return `scale=${$width}:${$height}` // TODO
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Fill:
@@ -111,6 +124,8 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
         case Model.Tv240x135:
           return `scale=${$width}:${$height},hqdn3d`
+        case Model.Tv64x64:
+          return `scale=${$width}:${$height}` // TODO
       }
   }
 })

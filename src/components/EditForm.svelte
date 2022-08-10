@@ -44,6 +44,9 @@
       // [key in Model]: $model
     }
 
+    console.log('Save path is: ', $savePath)
+    console.log('TESTING 1 2 3')
+
     // Trigger save dialog before a video conversion
     $savePath = await save({
       defaultPath: `${$outputName}`,
@@ -54,10 +57,14 @@
         }
       ]
     })
-    console.log('Save path is: ', { $savePath })
+
+    // console.log('Save path is: ', $savePath)
+    // console.log('TESTING 1 2 3')
 
     if ($model === Model.Tv96x64) await invoke('convert', { options })
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
+    // if ($model === Model.Tv64x64) await invoke('convert_mini', { options }) // TODO
+
     loading = false
   }
 </script>
@@ -155,3 +162,5 @@
     Convert</button
   >
 </form>
+
+<span /><progress max="100" value="70">70%</progress><span />
