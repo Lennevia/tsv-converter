@@ -64,6 +64,23 @@
 
     loading = false
   }
+
+  // Progress bar ideas:
+  // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
+  // https://github.com/tauri-apps/tauri/discussions/4069
+  let progress = 0
+  let intervalSpeed = 10
+  let incrementSpeed = 1
+  document.addEventListener('DOMContentLoaded', function () {
+    let bar = document.getElementById('bar')
+    progressInterval = setInterval(function () {
+      progress += incrementSpeed
+      bar.style.width = progress + '%'
+      if (progress >= 100) {
+        clearInterval(progressInterval)
+      }
+    }, intervalSpeed)
+  })
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
@@ -160,4 +177,26 @@
   >
 </form>
 
-<span /><progress max="100" value="70">70%</progress><span />
+<!-- <span /><label> Converting video:<progress max="100" value="70">70%</progress></label><span /> -->
+
+<!-- <div class="h-6 w-full rounded-full bg-gray-300 dark:bg-gray-700">
+  <div class="h-6 rounded-full bg-tc-orange dark:bg-tc-orange" style="width: 45%" />
+</div> -->
+
+<br />
+
+<div class="w-full rounded-full bg-gray-300 dark:bg-gray-700">
+  <div
+    class="text-s rounded-full bg-tc-orange p-0.5 text-center font-medium leading-none text-gray-900"
+    style="width: 45%"
+    id="bar"
+  >
+    45%
+  </div>
+</div>
+
+<h1>Progress Bar</h1>
+<div class="relative h-3 max-w-xl overflow-hidden rounded-full">
+  <div class="absolute h-full w-full bg-gray-200" />
+  <div id="bar" class="relative h-full w-0 bg-green-500" />
+</div>
