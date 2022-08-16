@@ -34,7 +34,7 @@ export interface Options {
 /** Video duration in seconds. */
 export const duration = writable(NaN)
 
-export const savePath = writable('testthathisisremoved')
+export const savePath = writable('None selected')
 
 /** TV variables */
 export const model = writable(Model.Tv96x64) // Default selected option

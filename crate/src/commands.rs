@@ -31,6 +31,7 @@ pub struct Metadata {
 #[serde(rename_all = "camelCase")]
 pub struct Options<'a> {
     path: &'a str,
+    save_path: &'a str, // add mut to tell compiler it's mutable
     output_name: &'a str,
     scale: &'a str,
 
@@ -75,7 +76,9 @@ pub fn metadata(path: &Path) -> Metadata {
 #[tauri::command]
 pub async fn watch(path: PathBuf, window: tauri::Window) {
     let (tx, mut rx) = async_runtime::channel(1); // Channel for modified/removed file
-
+    if !path.is_file() {
+        return;
+    }
     let mut watcher =
         notify::recommended_watcher(move |res: Result<notify::Event, notify::Error>| {
             match res {
@@ -147,9 +150,10 @@ fn sidecar_path(name: &str) -> PathBuf {
 #[tauri::command]
 pub fn convert(options: Options<'_>) {
     let path = Path::new(&options.path);
-    let output_path = path
+    let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("tsv");
+
     let output_file = OpenOptions::new()
         .create(true)
         .truncate(true)
@@ -246,7 +250,7 @@ pub fn convert(options: Options<'_>) {
 #[tauri::command]
 pub fn convert_avi(options: Options<'_>) {
     let path = Path::new(&options.path);
-    let output_path = path
+    let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("avi");
     let _ = fs::remove_file(&output_path);
@@ -257,6 +261,7 @@ pub fn convert_avi(options: Options<'_>) {
     let mut cmd = Command::new(&ffmpeg_path);
     #[rustfmt::skip]
     cmd.args([
+        // "-hide_banner", "-loglevel quiet", // makes ffmpeg not print verbose output to terminal
         "-i", options.path,
         "-r", options.frame_rate,
         "-vf", options.scale,
@@ -267,7 +272,7 @@ pub fn convert_avi(options: Options<'_>) {
         "-acodec", "pcm_u8",
         "-ar", "10000",
         "-ac", "1",
-        &output_path.to_string_lossy(),
+        options.save_path,
     ])
     .stdin(Stdio::null())
     .stdout(Stdio::null())
