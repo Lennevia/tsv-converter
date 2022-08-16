@@ -17,7 +17,6 @@
     videoFrameBytes,
     type Options
   } from '$stores/options'
-  import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
@@ -53,10 +52,12 @@
       filters: [
         {
           name: `.${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`,
-          extensions: ['stronghold']
+          extensions: [`${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`]
         }
       ]
     })
+
+    // $savePath.toString()
 
     if ($model === Model.Tv96x64) await invoke('convert', { options })
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
@@ -68,19 +69,19 @@
   // Progress bar ideas:
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
-  let progress = 0
-  let intervalSpeed = 10
-  let incrementSpeed = 1
-  document.addEventListener('DOMContentLoaded', function () {
-    let bar = document.getElementById('bar')
-    progressInterval = setInterval(function () {
-      progress += incrementSpeed
-      bar.style.width = progress + '%'
-      if (progress >= 100) {
-        clearInterval(progressInterval)
-      }
-    }, intervalSpeed)
-  })
+  // let progress = 0
+  // let intervalSpeed = 10
+  // let incrementSpeed = 1
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   let bar = document.getElementById('bar')
+  //   progressInterval = setInterval(function () {
+  //     progress += incrementSpeed
+  //     bar.style.width = progress + '%'
+  //     if (progress >= 100) {
+  //       clearInterval(progressInterval)
+  //     }
+  //   }, intervalSpeed)
+  // })
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
@@ -165,38 +166,28 @@
     </div>
   </fieldset>
 
+  <div>Input Path: {$inputPath}</div>
+  <div>Saving to: {$savePath}</div>
+
   <!-- convert button -->
-  <button disabled={!valid || loading} class="button button-primary">
-    <Loading
-      aria-label="loading"
-      class="absolute top-[calc(50%-.75rem)] left-[calc(50%-.75rem)] h-6 w-6 {loading
-        ? 'animate-spin'
-        : 'hidden'}"
-    />
-    Convert</button
-  >
+  <button disabled={!valid || loading} class="button button-primary"> Convert</button>
 </form>
-
-<!-- <span /><label> Converting video:<progress max="100" value="70">70%</progress></label><span /> -->
-
-<!-- <div class="h-6 w-full rounded-full bg-gray-300 dark:bg-gray-700">
-  <div class="h-6 rounded-full bg-tc-orange dark:bg-tc-orange" style="width: 45%" />
-</div> -->
 
 <br />
 
-<div class="w-full rounded-full bg-gray-300 dark:bg-gray-700">
+<!-- loading bar -->
+<div
+  disabled={loading}
+  aria-label="loading"
+  class="w-full rounded-full bg-gray-300 dark:bg-gray-700 {loading ? 'width: 100%' : 'hidden'}"
+>
   <div
-    class="text-s rounded-full bg-tc-orange p-0.5 text-center font-medium leading-none text-gray-900"
-    style="width: 45%"
+    class="text-s rounded-full bg-tc-orange p-0.5 text-center font-medium leading-none text-gray-900 {loading
+      ? ''
+      : 'hidden'}"
+    style="width: 0%"
     id="bar"
   >
-    45%
+    0%
   </div>
-</div>
-
-<h1>Progress Bar</h1>
-<div class="relative h-3 max-w-xl overflow-hidden rounded-full">
-  <div class="absolute h-full w-full bg-gray-200" />
-  <div id="bar" class="relative h-full w-0 bg-green-500" />
 </div>
