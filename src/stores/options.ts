@@ -14,6 +14,24 @@ export enum Model {
   Tv64x64 = 'TinyTVmini - 64x64'
 }
 
+/** Settings data structure **/
+export interface Settings {
+  volume: number
+
+  staticEffects: boolean
+  timeStamp: boolean
+  showChannel: boolean
+  alphabeticOrder: boolean
+}
+
+export enum Playback {
+  Auto = 'Auto',
+  Loop = 'Loop',
+  FauxLive = 'Faux Live'
+}
+
+export const playback = writable(Playback.FauxLive)
+
 /** Video conversion options. */
 export interface Options {
   path: string
@@ -32,8 +50,9 @@ export interface Options {
 }
 
 /** Video duration in seconds. */
-export const duration = writable(NaN)
+export const duration = writable(NaN) // TODO - is this used?
 
+/** Path variable */
 export const savePath = writable('None selected')
 
 /** TV variables */
