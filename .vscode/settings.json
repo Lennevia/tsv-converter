@@ -37,5 +37,6 @@
   "rust-analyzer.imports.granularity.enforce": true,
   "rust-analyzer.imports.granularity.group": "module",
   "rust-analyzer.procMacro.enable": true,
-  "editor.inlayHints.enabled": "off"
+  "editor.inlayHints.enabled": "off",
+  "nrf-connect.toolchain.path": "${nrf-connect.toolchain:2.0.2}"
 }

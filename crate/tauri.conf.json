@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "TSV Converter",
+    "productName": "TinyTV Video Converter",
     "version": "0.1.0"
   },
   "build": {
@@ -25,8 +25,8 @@
       "externalBin": ["bin/ffmpeg", "bin/ffprobe"],
       "copyright": "© Copyright 2022 Teddy Byron",
       "category": "Utility",
-      "shortDescription": "TinyCircuits TinyScreen Video (TSV) converter.",
-      "longDescription": "TinyCircuits TinyScreen Video (TSV) converter.",
+      "shortDescription": "TinyCircuits TinyTV Video Converter.",
+      "longDescription": "TinyCircuits TinyTV Video Converter.",
       "deb": {
         "depends": []
       },
@@ -82,7 +82,7 @@
     },
     "windows": [
       {
-        "title": "TSV Converter",
+        "title": "TinyTV Video Converter",
         "width": 800,
         "height": 600,
         "visible": false,

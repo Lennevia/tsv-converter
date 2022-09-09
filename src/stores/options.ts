@@ -10,8 +10,8 @@ export enum Crop {
 /** Tv model versions that determine method of conversion to use */
 export enum Model {
   Tv96x64 = 'TinyTV - 96x64',
-  Tv240x135 = 'TV - 240x135',
-  Tv64x64 = 'TinyTVmini - 64x64'
+  Tv240x135 = 'TinyTV 2 - 240x135'
+  // Tv64x64 = 'TinyTVmini - 64x64'
 }
 
 /** Settings data structure **/
@@ -64,8 +64,8 @@ export const width = derived(model, ($model) => {
       return 96
     case Model.Tv240x135:
       return 216 // changed from 240
-    case Model.Tv64x64:
-      return 64
+    // case Model.Tv64x64:
+    //   return 64
   }
 })
 export const height = derived(model, ($model) => {
@@ -74,8 +74,8 @@ export const height = derived(model, ($model) => {
       return 64
     case Model.Tv240x135:
       return 135
-    case Model.Tv64x64:
-      return 64
+    // case Model.Tv64x64:
+    //   return 64
   }
 })
 export const sampleBitDepth = derived(model, ($model) => {
@@ -84,8 +84,8 @@ export const sampleBitDepth = derived(model, ($model) => {
       return 10
     case Model.Tv240x135:
       return 8
-    case Model.Tv64x64:
-      return 10 // TODO
+    // case Model.Tv64x64:
+    //   return 10 // TODO
   }
 })
 export const frameRate = derived(model, ($model) => {
@@ -94,8 +94,8 @@ export const frameRate = derived(model, ($model) => {
       return 30
     case Model.Tv240x135:
       return 24
-    case Model.Tv64x64:
-      return 30 // TODO
+    // case Model.Tv64x64:
+    //   return 30 // TODO
   }
 })
 
@@ -123,8 +123,8 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
           return `scale=${$width}:${$height}`
         case Model.Tv240x135:
           return `scale=-1:${$height},pad=${$width}:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
-        case Model.Tv64x64:
-          return `scale=${$width}:${$height}` // TODO
+        // case Model.Tv64x64:
+        //   return `scale=${$width}:${$height}` // TODO
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Cover:
@@ -133,8 +133,8 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
         case Model.Tv240x135:
           return `scale=${$width}:-1,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
-        case Model.Tv64x64:
-          return `scale=${$width}:${$height}` // TODO
+        // case Model.Tv64x64:
+        //   return `scale=${$width}:${$height}` // TODO
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Fill:
@@ -143,8 +143,8 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
         case Model.Tv240x135:
           return `scale=${$width}:${$height},hqdn3d`
-        case Model.Tv64x64:
-          return `scale=${$width}:${$height}` // TODO
+        // case Model.Tv64x64:
+        //   return `scale=${$width}:${$height}` // TODO
       }
   }
 })
