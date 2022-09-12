@@ -17,6 +17,7 @@
     videoFrameBytes,
     type Options
   } from '$stores/options'
+  import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
@@ -54,19 +55,27 @@
       ]
     })
 
+    // .then(  async (): Promise<void> => {
+
     if ($model === Model.Tv96x64) await invoke('convert', { options })
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
     // if ($model === Model.Tv64x64) await invoke('convert_mini', { options }) // TODO
 
     loading = false
+    // })
   }
 
   // Progress bar ideas:
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
   // let progress = 0
+<<<<<<< HEAD
   // let intervalSpeed = 10
   // let incrementSpeed = 1
+=======
+  // const intervalSpeed = 10
+  // const incrementSpeed = 1
+>>>>>>> 7615416ca4f6ccf55b922473cbbfef874dc1d85c
   // document.addEventListener('DOMContentLoaded', function () {
   //   let bar = document.getElementById('bar')
   //   progressInterval = setInterval(function () {
@@ -165,13 +174,113 @@
   <div>Saving to: {$savePath}</div>
 
   <!-- convert button -->
+<<<<<<< HEAD
   <button disabled={!valid || loading} class="button button-primary"> Convert</button>
 </form>
 
 <br />
+=======
+  <!-- <button disabled={!valid || loading} class="button button-primary"> Convert</button>
+  <div>Saving to: {$savePath}</div> -->
+
+  <button disabled={!valid || loading} class="button button-primary">
+    <Loading
+      aria-label="loading"
+      class="absolute top-[calc(50%-.75rem)] left-[calc(50%-.75rem)] h-6 w-6 {loading
+        ? 'animate-spin'
+        : 'hidden'}"
+    />
+
+    Convert</button
+  >
+</form>
+
+<!-- Holding off on settings until user interest and future release -->
+<!-- Settings -->
+<!-- <fieldset class="form-fieldset flex flex-col items-start">
+  <legend class="form-legend">Settings</legend> -->
+
+<!-- Volume -->
+<!-- <label for="steps-range" class="text-s mb-1 block font-medium text-zinc-900 dark:text-zinc-200"
+    >Volume:<input
+      id="steps-range"
+      type="range"
+      min="0"
+      max="100"
+      value="50"
+      step="10"
+      class="h-5 w-full cursor-pointer appearance-none rounded-lg bg-zinc-600 accent-zinc-200  
+        dark:bg-zinc-700"
+    />
+  </label> -->
+
+<!-- Toggle settings -->
+<!-- <span class="text-s whitespace-normal font-medium text-zinc-900 dark:text-zinc-200"
+    >Static effects:
+    <label
+      for="small-toggle-sfx"
+      class="relative mb-2 inline-flex cursor-pointer items-center align-text-top"
+    >
+      <input type="checkbox" value="" id="small-toggle-sfx" class="peer sr-only" checked />
+      <div
+        class="peer-focus:ring-3 peer h-5 w-9 rounded-full bg-zinc-400 after:absolute after:top-[2px] after:left-[2px] 
+        after:h-4 after:w-4 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all
+         after:content-[''] peer-checked:bg-tc-blue peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none 
+         peer-focus:ring-blue-300 dark:border-zinc-600 dark:bg-zinc-700 dark:peer-focus:ring-tc-blue"
+      />
+    </label>
+  </span>
+
+  <span class="text-s whitespace-normal font-medium text-zinc-900 dark:text-zinc-200"
+    >Show timestamp:
+    <label
+      for="small-toggle-timestamp"
+      class="relative mb-2 inline-flex cursor-pointer items-center align-text-top"
+    >
+      <input type="checkbox" value="" id="small-toggle-timestamp" class="peer sr-only" checked />
+      <div
+        class="peer-focus:ring-3 peer h-5 w-9 rounded-full bg-zinc-400 after:absolute after:top-[2px] after:left-[2px] 
+        after:h-4 after:w-4 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all
+         after:content-[''] peer-checked:bg-tc-blue peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none 
+         peer-focus:ring-blue-300 dark:border-zinc-600 dark:bg-zinc-700 dark:peer-focus:ring-tc-blue"
+      />
+    </label>
+  </span> -->
+
+<!-- Video playback radio group -->
+<!-- <span class="text-s mb-1 block font-medium text-zinc-900 dark:text-zinc-200">Video Playback:</span
+  >
+  {#each Object.values(Playback) as opt}
+    <label
+      class="flex items-center rounded-md px-2 py-0.5 hover:bg-zinc-300 dark:hover:bg-zinc-700"
+    >
+      <input
+        type="radio"
+        name="crop"
+        checked={$playback === opt}
+        on:change={() => {
+          $playback = opt
+        }}
+        class="mr-2"
+      />
+      <span>{opt}</span>
+    </label>
+  {/each}
+</fieldset> -->
+
+<!-- 
+Volume: |---+--|  
+Showing static effects: ON
+Show timestamp: ON
+Playback mode (auto, loop, faux-live): faux-live
+Show channel number: ON
+Alphabetic video order: ON -->
+
+<!-- <br /> -->
+>>>>>>> 7615416ca4f6ccf55b922473cbbfef874dc1d85c
 
 <!-- loading bar -->
-<div
+<!-- <div
   disabled={loading}
   aria-label="loading"
   class="w-full rounded-full bg-gray-300 dark:bg-gray-700 {loading ? 'width: 100%' : 'hidden'}"
@@ -185,4 +294,4 @@
   >
     0%
   </div>
-</div>
+</div> -->
