@@ -2,7 +2,7 @@
   import { open, type DialogFilter, type OpenDialogOptions } from '@tauri-apps/api/dialog'
   import { onMount } from 'svelte'
 
-  import { ffprobe } from '$lib/fileUtils'
+  // import { ffprobe } from '$lib/fileUtils'
   import { inputError, inputPath } from '$stores/file'
   import Loading from '~icons/tabler/loader-2'
 
@@ -40,13 +40,13 @@
       return
     }
 
-    if (await ffprobe(path)) {
-      $inputError = undefined
+    // if (await ffprobe(path)) { //  If the url cannot be opened or recognized as a multimedia file, a positive exit code is returned.
+    //   $inputError = undefined
       $inputPath = path
-    } else {
-      $inputPath = undefined
-      $inputError = "Couldn't read the file's metadata"
-    }
+    // } else {
+    //   $inputPath = undefined
+    //   $inputError = "Couldn't read the file's metadata"
+    // }
 
     // keep loading icon when transitioning views
     if (

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import { invoke } from '@tauri-apps/api'
 
   import { fileSize, secondsToHHMMSS } from '$lib/fileUtils'
@@ -21,10 +21,10 @@
   $: (async () => {
     metadata = await invoke('metadata', { path })
   })()
-</script>
+</script> -->
 
 <!-- TODO: use a table -->
-{#if metadata}
+<!-- {#if metadata}
   <div class="rounded-md border border-zinc-400 dark:border-zinc-600">
     <div
       class="max-w-full overflow-x-auto rounded-t-md bg-zinc-300 px-2 text-center dark:bg-zinc-600"
@@ -70,4 +70,4 @@
       {/if}
     </div>
   </div>
-{/if}
+{/if} -->

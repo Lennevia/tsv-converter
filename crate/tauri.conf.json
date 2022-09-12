@@ -22,7 +22,7 @@
         "icons/icon.ico"
       ],
       "resources": [],
-      "externalBin": ["bin/ffmpeg", "bin/ffprobe"],
+      "externalBin": ["bin/ffmpeg"],
       "copyright": "© Copyright 2022 Teddy Byron",
       "category": "Utility",
       "shortDescription": "TinyCircuits TinyTV Video Converter.",
@@ -65,12 +65,6 @@
           {
             "name": "bin/ffmpeg",
             "cmd": "bin/ffmpeg",
-            "sidecar": true,
-            "args": true
-          },
-          {
-            "name": "bin/ffprobe",
-            "cmd": "bin/ffprobe",
             "sidecar": true,
             "args": true
           }

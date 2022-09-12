@@ -253,7 +253,7 @@ pub fn convert_avi(options: Options<'_>) {
     let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("avi");
-
+    let _ = fs::remove_file(&output_path);
     let ffmpeg_path = sidecar_path("ffmpeg");
     #[cfg(debug_assertions)]
     let timer = Instant::now();
@@ -261,8 +261,7 @@ pub fn convert_avi(options: Options<'_>) {
     let mut cmd = Command::new(&ffmpeg_path);
     #[rustfmt::skip]
     cmd.args([
-        // "-loglevel quiet", // makes ffmpeg not print verbose output to terminal
-        // "-nostdin", // https://stackoverflow.com/questions/16523746/ffmpeg-hangs-when-run-in-background - attempt for needing to run the command twice
+        // "-hide_banner", "-loglevel quiet", // makes ffmpeg not print verbose output to terminal
         "-i", options.path,
         "-r", options.frame_rate,
         "-vf", options.scale,
@@ -300,6 +299,4 @@ pub fn convert_avi(options: Options<'_>) {
         let elapsed = timer.elapsed();
         dbg!(elapsed);
     }
-
-    // let _ = fs::remove_file(&output_path);
 }

@@ -14,11 +14,8 @@
     sampleRate,
     savePath,
     scale,
-    // Playback,
-    // playback,
     videoFrameBytes,
     type Options
-    // type Settings
   } from '$stores/options'
 
   const valid = true
@@ -67,19 +64,19 @@
   // Progress bar ideas:
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
-  let progress = 0
-  const intervalSpeed = 10
-  const incrementSpeed = 1
-  document.addEventListener('DOMContentLoaded', function () {
-    let bar = document.getElementById('bar')
-    progressInterval = setInterval(function () {
-      progress += incrementSpeed
-      bar.style.width = progress + '%'
-      if (progress >= 100) {
-        clearInterval(progressInterval)
-      }
-    }, intervalSpeed)
-  })
+  // let progress = 0
+  // let intervalSpeed = 10
+  // let incrementSpeed = 1
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   let bar = document.getElementById('bar')
+  //   progressInterval = setInterval(function () {
+  //     progress += incrementSpeed
+  //     bar.style.width = progress + '%'
+  //     if (progress >= 100) {
+  //       clearInterval(progressInterval)
+  //     }
+  //   }, intervalSpeed)
+  // })
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
@@ -110,7 +107,7 @@
 
     {#each Object.values(Crop) as opt}
       <label
-        class="flex items-center rounded-md px-2 py-0.5 hover:bg-zinc-300 dark:hover:bg-zinc-700"
+        class="flex items-center rounded-md px-2 py-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700"
       >
         <input
           type="radio"
@@ -164,93 +161,12 @@
     </div>
   </fieldset>
 
-  <!-- <div>Input Path: {$inputPath}</div> -->
+  <div>Input Path: {$inputPath}</div>
+  <div>Saving to: {$savePath}</div>
 
   <!-- convert button -->
   <button disabled={!valid || loading} class="button button-primary"> Convert</button>
-  <!-- <div>Saving to: {$savePath}</div> -->
 </form>
-
-<!-- Holding off on settings until user interest and future release -->
-<!-- Settings -->
-<!-- <fieldset class="form-fieldset flex flex-col items-start">
-  <legend class="form-legend">Settings</legend> -->
-
-<!-- Volume -->
-<!-- <label for="steps-range" class="text-s mb-1 block font-medium text-zinc-900 dark:text-zinc-200"
-    >Volume:<input
-      id="steps-range"
-      type="range"
-      min="0"
-      max="100"
-      value="50"
-      step="10"
-      class="h-5 w-full cursor-pointer appearance-none rounded-lg bg-zinc-600 accent-zinc-200  
-        dark:bg-zinc-700"
-    />
-  </label> -->
-
-<!-- Toggle settings -->
-<!-- <span class="text-s whitespace-normal font-medium text-zinc-900 dark:text-zinc-200"
-    >Static effects:
-    <label
-      for="small-toggle-sfx"
-      class="relative mb-2 inline-flex cursor-pointer items-center align-text-top"
-    >
-      <input type="checkbox" value="" id="small-toggle-sfx" class="peer sr-only" checked />
-      <div
-        class="peer-focus:ring-3 peer h-5 w-9 rounded-full bg-zinc-400 after:absolute after:top-[2px] after:left-[2px] 
-        after:h-4 after:w-4 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all
-         after:content-[''] peer-checked:bg-tc-blue peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none 
-         peer-focus:ring-blue-300 dark:border-zinc-600 dark:bg-zinc-700 dark:peer-focus:ring-tc-blue"
-      />
-    </label>
-  </span>
-
-  <span class="text-s whitespace-normal font-medium text-zinc-900 dark:text-zinc-200"
-    >Show timestamp:
-    <label
-      for="small-toggle-timestamp"
-      class="relative mb-2 inline-flex cursor-pointer items-center align-text-top"
-    >
-      <input type="checkbox" value="" id="small-toggle-timestamp" class="peer sr-only" checked />
-      <div
-        class="peer-focus:ring-3 peer h-5 w-9 rounded-full bg-zinc-400 after:absolute after:top-[2px] after:left-[2px] 
-        after:h-4 after:w-4 after:rounded-full after:border after:border-zinc-300 after:bg-white after:transition-all
-         after:content-[''] peer-checked:bg-tc-blue peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none 
-         peer-focus:ring-blue-300 dark:border-zinc-600 dark:bg-zinc-700 dark:peer-focus:ring-tc-blue"
-      />
-    </label>
-  </span> -->
-
-<!-- Video playback radio group -->
-<!-- <span class="text-s mb-1 block font-medium text-zinc-900 dark:text-zinc-200">Video Playback:</span
-  >
-  {#each Object.values(Playback) as opt}
-    <label
-      class="flex items-center rounded-md px-2 py-0.5 hover:bg-zinc-300 dark:hover:bg-zinc-700"
-    >
-      <input
-        type="radio"
-        name="crop"
-        checked={$playback === opt}
-        on:change={() => {
-          $playback = opt
-        }}
-        class="mr-2"
-      />
-      <span>{opt}</span>
-    </label>
-  {/each}
-</fieldset> -->
-
-<!-- 
-Volume: |---+--|  
-Showing static effects: ON
-Show timestamp: ON
-Playback mode (auto, loop, faux-live): faux-live
-Show channel number: ON
-Alphabetic video order: ON -->
 
 <br />
 
@@ -258,10 +174,10 @@ Alphabetic video order: ON -->
 <div
   disabled={loading}
   aria-label="loading"
-  class="w-full rounded-full bg-zinc-300 dark:bg-zinc-700 {loading ? 'width: 100%' : 'hidden'}"
+  class="w-full rounded-full bg-gray-300 dark:bg-gray-700 {loading ? 'width: 100%' : 'hidden'}"
 >
   <div
-    class="text-s rounded-full bg-tc-orange p-0.5 text-center font-medium leading-none text-zinc-900 {loading
+    class="text-s rounded-full bg-tc-orange p-0.5 text-center font-medium leading-none text-gray-900 {loading
       ? ''
       : 'hidden'}"
     style="width: 0%"
