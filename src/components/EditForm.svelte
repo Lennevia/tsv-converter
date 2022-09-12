@@ -69,13 +69,10 @@
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
   // let progress = 0
-<<<<<<< HEAD
   // let intervalSpeed = 10
   // let incrementSpeed = 1
-=======
   // const intervalSpeed = 10
   // const incrementSpeed = 1
->>>>>>> 7615416ca4f6ccf55b922473cbbfef874dc1d85c
   // document.addEventListener('DOMContentLoaded', function () {
   //   let bar = document.getElementById('bar')
   //   progressInterval = setInterval(function () {
@@ -170,16 +167,14 @@
     </div>
   </fieldset>
 
-  <div>Input Path: {$inputPath}</div>
-  <div>Saving to: {$savePath}</div>
+  <!-- <div>Input Path: {$inputPath}</div>
+  <div>Saving to: {$savePath}</div> -->
 
   <!-- convert button -->
-<<<<<<< HEAD
-  <button disabled={!valid || loading} class="button button-primary"> Convert</button>
-</form>
+  <!-- <button disabled={!valid || loading} class="button button-primary"> Convert</button> -->
+  <!-- </form> -->
 
-<br />
-=======
+  <!-- <br /> -->
   <!-- <button disabled={!valid || loading} class="button button-primary"> Convert</button>
   <div>Saving to: {$savePath}</div> -->
 
@@ -277,7 +272,6 @@ Show channel number: ON
 Alphabetic video order: ON -->
 
 <!-- <br /> -->
->>>>>>> 7615416ca4f6ccf55b922473cbbfef874dc1d85c
 
 <!-- loading bar -->
 <!-- <div

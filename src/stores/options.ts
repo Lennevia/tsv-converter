@@ -10,27 +10,27 @@ export enum Crop {
 /** Tv model versions that determine method of conversion to use */
 export enum Model {
   Tv96x64 = 'TinyTV - 96x64',
-  Tv240x135 = 'TinyTV 2 - 240x135'
+  Tv240x135 = 'TinyTV 2 - 216x135'
   // Tv64x64 = 'TinyTVmini - 64x64'
 }
 
 /** Settings data structure **/
-export interface Settings {
-  volume: number
+// export interface Settings {
+//   volume: number
 
-  staticEffects: boolean
-  timeStamp: boolean
-  showChannel: boolean
-  alphabeticOrder: boolean
-}
+//   staticEffects: boolean
+//   timeStamp: boolean
+//   showChannel: boolean
+//   alphabeticOrder: boolean
+// }
 
-export enum Playback {
-  Auto = 'Auto',
-  Loop = 'Loop',
-  FauxLive = 'Faux Live'
-}
+// export enum Playback {
+//   Auto = 'Auto',
+//   Loop = 'Loop',
+//   FauxLive = 'Faux Live'
+// }
 
-export const playback = writable(Playback.FauxLive)
+// export const playback = writable(Playback.FauxLive)
 
 /** Video conversion options. */
 export interface Options {
@@ -122,7 +122,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}`
         case Model.Tv240x135:
-          return `scale=-1:${$height},pad=${$width}:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
+          return `scale=-1:${$height},pad=ceil(iw/2)*2:ceil((ih+10)/2)*2:0:0,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
         // case Model.Tv64x64:
         //   return `scale=${$width}:${$height}` // TODO
       }
