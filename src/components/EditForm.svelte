@@ -20,6 +20,7 @@
     type Options
     // type Settings
   } from '$stores/options'
+  import Loading from '~icons/tabler/loader-2'
 
   const valid = true
   let loading = false
@@ -57,29 +58,32 @@
       ]
     })
 
+    // .then(  async (): Promise<void> => {
+
     if ($model === Model.Tv96x64) await invoke('convert', { options })
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
     // if ($model === Model.Tv64x64) await invoke('convert_mini', { options }) // TODO
 
     loading = false
+    // })
   }
 
   // Progress bar ideas:
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
-  let progress = 0
-  const intervalSpeed = 10
-  const incrementSpeed = 1
-  document.addEventListener('DOMContentLoaded', function () {
-    let bar = document.getElementById('bar')
-    progressInterval = setInterval(function () {
-      progress += incrementSpeed
-      bar.style.width = progress + '%'
-      if (progress >= 100) {
-        clearInterval(progressInterval)
-      }
-    }, intervalSpeed)
-  })
+  // let progress = 0
+  // const intervalSpeed = 10
+  // const incrementSpeed = 1
+  // document.addEventListener('DOMContentLoaded', function () {
+  //   let bar = document.getElementById('bar')
+  //   progressInterval = setInterval(function () {
+  //     progress += incrementSpeed
+  //     bar.style.width = progress + '%'
+  //     if (progress >= 100) {
+  //       clearInterval(progressInterval)
+  //     }
+  //   }, intervalSpeed)
+  // })
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
@@ -167,8 +171,19 @@
   <!-- <div>Input Path: {$inputPath}</div> -->
 
   <!-- convert button -->
-  <button disabled={!valid || loading} class="button button-primary"> Convert</button>
-  <!-- <div>Saving to: {$savePath}</div> -->
+  <!-- <button disabled={!valid || loading} class="button button-primary"> Convert</button>
+  <div>Saving to: {$savePath}</div> -->
+
+  <button disabled={!valid || loading} class="button button-primary">
+    <Loading
+      aria-label="loading"
+      class="absolute top-[calc(50%-.75rem)] left-[calc(50%-.75rem)] h-6 w-6 {loading
+        ? 'animate-spin'
+        : 'hidden'}"
+    />
+
+    Convert</button
+  >
 </form>
 
 <!-- Holding off on settings until user interest and future release -->
@@ -252,10 +267,10 @@ Playback mode (auto, loop, faux-live): faux-live
 Show channel number: ON
 Alphabetic video order: ON -->
 
-<br />
+<!-- <br /> -->
 
 <!-- loading bar -->
-<div
+<!-- <div
   disabled={loading}
   aria-label="loading"
   class="w-full rounded-full bg-zinc-300 dark:bg-zinc-700 {loading ? 'width: 100%' : 'hidden'}"
@@ -269,4 +284,4 @@ Alphabetic video order: ON -->
   >
     0%
   </div>
-</div>
+</div> -->

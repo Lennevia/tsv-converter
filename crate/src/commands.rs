@@ -1,5 +1,6 @@
 //! Tauri commands.
 
+use std::fmt;
 use std::fs::{self, OpenOptions};
 use std::io::{BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
@@ -249,7 +250,7 @@ pub fn convert(options: Options<'_>) {
 /// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
 #[tauri::command]
 pub fn convert_avi(options: Options<'_>) {
-    let path = Path::new(&options.path);
+    // let path = Path::new(&options.path);
     let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("avi");
