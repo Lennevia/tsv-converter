@@ -28,6 +28,17 @@
 
     if ($inputPath === undefined || $outputName === undefined) return
 
+    // Trigger save dialog before a video conversion
+    $savePath = await save({
+      defaultPath: `${$outputName}`,
+      filters: [
+        {
+          name: `.${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`,
+          extensions: [`${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`]
+        }
+      ]
+    })
+
     const options: Options = {
       path: $inputPath,
       savePath: $savePath,
@@ -43,17 +54,6 @@
 
       // [key in Model]: $model
     }
-
-    // Trigger save dialog before a video conversion
-    $savePath = await save({
-      defaultPath: `${$outputName}`,
-      filters: [
-        {
-          name: `.${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`,
-          extensions: [`${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`]
-        }
-      ]
-    })
 
     // .then(  async (): Promise<void> => {
 

@@ -142,7 +142,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
         case Model.Tv240x135:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2,hqdn3d`
+          return `scale=${$width}:${$height},hqdn3d`
         // case Model.Tv64x64:
         //   return `scale=${$width}:${$height}` // TODO
       }
