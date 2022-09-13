@@ -122,7 +122,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}`
         case Model.Tv240x135:
-          return `scale=-1:${$height},pad=ceil(iw/2)*2:ceil((ih+10)/2)*2:0:0,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=228:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
         // case Model.Tv64x64:
         //   return `scale=${$width}:${$height}` // TODO
       }
@@ -132,7 +132,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
         case Model.Tv240x135:
-          return `scale=${$width}:-1,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
         // case Model.Tv64x64:
         //   return `scale=${$width}:${$height}` // TODO
       }
@@ -142,7 +142,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv96x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
         case Model.Tv240x135:
-          return `scale=${$width}:${$height},hqdn3d`
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2,hqdn3d`
         // case Model.Tv64x64:
         //   return `scale=${$width}:${$height}` // TODO
       }
