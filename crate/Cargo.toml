@@ -1,12 +1,12 @@
 [package]
 name = "tsv-converter"
 version = "0.1.0"
-authors = ["Teddy Byron <ted@tedbyron.com>"]
+authors = ["Teddy Byron <ted@tedbyron.com>, Laveréna Wienclaw <lwienclaw@tinycircuits.com>"]
 edition = "2021"
 rust-version = "1.62"
 description = "TinyCircuits TinyScreen Video (TSV) converter"
 readme = "../README.md"
-repository = "https://github.com/tedbyron/tsv-converter"
+repository = "https://github.com/lennevia/tsv-converter"
 license-file = "../LICENSE"
 publish = false
 

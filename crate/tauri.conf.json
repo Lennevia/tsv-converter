@@ -13,7 +13,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tedbyron.tsv-converter",
+      "identifier": "com.lennevia.tsv-converter",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -23,7 +23,7 @@
       ],
       "resources": [],
       "externalBin": ["bin/ffmpeg"],
-      "copyright": "© Copyright 2022 Teddy Byron",
+      "copyright": "© Copyright 2022 TinyCircuits",
       "category": "Utility",
       "shortDescription": "TinyCircuits TinyTV Video Converter.",
       "longDescription": "TinyCircuits TinyTV Video Converter.",

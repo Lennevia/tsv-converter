@@ -149,7 +149,7 @@ fn sidecar_path(name: &str) -> PathBuf {
 /// Convert to Tiny Screen Video .tsv filetype.
 #[tauri::command]
 pub fn convert(options: Options<'_>) {
-    let path = Path::new(&options.path);
+    // let path = Path::new(&options.path);
     let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("tsv");
@@ -249,7 +249,7 @@ pub fn convert(options: Options<'_>) {
 /// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
 #[tauri::command]
 pub fn convert_avi(options: Options<'_>) {
-    let path = Path::new(&options.path);
+    // let path = Path::new(&options.path);
     let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("avi");
@@ -267,6 +267,61 @@ pub fn convert_avi(options: Options<'_>) {
         "-vf", options.scale,
         "-b:v", "1500k",
         "-maxrate", "1500k",
+        "-bufsize", "64k",
+        "-c:v", "mjpeg",
+        "-acodec", "pcm_u8",
+        "-ar", "10000",
+        "-ac", "1",
+        options.save_path,
+    ])
+    .stdin(Stdio::null())
+    .stdout(Stdio::null())
+    .stderr(Stdio::piped());
+
+    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    let mut child = cmd.spawn().unwrap();
+    let mut stderr = String::new();
+    child
+        .stderr
+        .take()
+        .unwrap()
+        .read_to_string(&mut stderr)
+        .unwrap();
+    child.wait().unwrap();
+
+    #[cfg(debug_assertions)]
+    {
+        dbg!(stderr);
+        let elapsed = timer.elapsed();
+        dbg!(elapsed);
+    }
+}
+
+/// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
+#[tauri::command]
+pub fn convert_mini_avi(options: Options<'_>) {
+    // let path = Path::new(&options.path);
+    let output_path = Path::new(&options.save_path)
+        .with_file_name(&options.output_name)
+        .with_extension("avi");
+    let _ = fs::remove_file(&output_path);
+    let ffmpeg_path = sidecar_path("ffmpeg");
+    #[cfg(debug_assertions)]
+    let timer = Instant::now();
+
+    let mut cmd = Command::new(&ffmpeg_path);
+    #[rustfmt::skip]
+    cmd.args([
+        // "-hide_banner", "-loglevel quiet", // makes ffmpeg not print verbose output to terminal
+        "-i", options.path,
+        "-r", options.frame_rate,
+        "-vf", options.scale,
+        "-b:v", "300k",  
+        "-maxrate", "300k",
         "-bufsize", "64k",
         "-c:v", "mjpeg",
         "-acodec", "pcm_u8",

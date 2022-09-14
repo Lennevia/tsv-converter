@@ -39,6 +39,11 @@
       ]
     })
 
+    if ($savePath === null) {
+      loading = false
+      return
+    }
+
     const options: Options = {
       path: $inputPath,
       savePath: $savePath,
@@ -59,7 +64,7 @@
 
     if ($model === Model.Tv96x64) await invoke('convert', { options })
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
-    // if ($model === Model.Tv64x64) await invoke('convert_mini', { options }) // TODO
+    if ($model === Model.Tv64x64) await invoke('convert_mini_avi', { options })
 
     loading = false
     // })
