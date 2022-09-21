@@ -9,11 +9,12 @@ const config = {
     alias: {
       $components: 'src/components',
       $stores: 'src/stores'
-    },
-    prerender: {
-      default: true
     }
   }
 }
 
 export default config
+
+// src/routes/+layout.js
+export const csr = false
+export const prerender = true

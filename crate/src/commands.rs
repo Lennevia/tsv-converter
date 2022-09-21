@@ -220,12 +220,12 @@ pub fn convert(options: Options<'_>) {
         if audio_stdout.read_exact(&mut audio_frame).is_ok() {
             for i in 0..options.audio_frame_bytes / 2 {
                 let sample = ((0x8000
-                    + (u32::from(audio_frame[i * 2 + 1]) << 8 | u32::from(audio_frame[i * 2])))
+                    + (u32::from(audio_frame[(i * 2) + 1]) << 8 | u32::from(audio_frame[i * 2])))
                     >> (16 - u32::from(options.sample_bit_depth)))
-                    & (0xFFFF >> (16 - u32::from(options.sample_bit_depth)));
+                    & (0x0000FFFF >> (16 - u32::from(options.sample_bit_depth)));
 
                 audio_frame[i * 2] = (sample & 0xFF) as u8;
-                audio_frame[i * 2 + 1] = (sample >> 8) as u8;
+                audio_frame[(i * 2) + 1] = (sample >> 8) as u8;
             }
         } else {
             audio_frame.fill(0);

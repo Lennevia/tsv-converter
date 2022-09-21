@@ -32,6 +32,7 @@
       },
       "macOS": {
         "license": "../LICENSE",
+        "minimumSystemVersion": "10.13",
         "frameworks": [],
         "exceptionDomain": "",
         "signingIdentity": null,
