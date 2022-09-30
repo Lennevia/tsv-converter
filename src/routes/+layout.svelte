@@ -7,6 +7,8 @@
 
   import '../app.css'
 
+  // export const ssr = false
+
   onMount(async () => {
     await appWindow.show()
   })

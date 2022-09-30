@@ -7,6 +7,8 @@ use std::process::{Command, Stdio};
 #[cfg(debug_assertions)]
 use std::time::Instant;
 
+// use byte_array::ByteArray;
+// use libmath::round;
 use notify::{Config, EventKind, RecursiveMode, Watcher};
 use tauri::async_runtime;
 use time::OffsetDateTime;
@@ -92,7 +94,7 @@ pub async fn watch(path: PathBuf, window: tauri::Window) {
             };
         })
         .unwrap();
-    watcher.configure(Config::PreciseEvents(true)).unwrap();
+    // watcher.configure(Config::PreciseEvents(true)).unwrap();
     watcher.watch(&path, RecursiveMode::NonRecursive).unwrap();
 
     if let Some(event_kind) = rx.recv().await {
@@ -212,38 +214,76 @@ pub fn convert(options: Options<'_>) {
 
     let mut audio_child = audio_cmd.spawn().unwrap();
     let mut audio_stdout = audio_child.stdout.take().unwrap();
-    let mut audio_frame = vec![0; options.audio_frame_bytes];
+    let mut audio_frame = vec![0; options.audio_frame_bytes]; // 0 - 2048
+                                                              // let mut audio_data = ByteArray(audio_frame);
 
+    /*
     while video_stdout.read_exact(&mut video_frame).is_ok() {
         writer.write_all(&video_frame).unwrap();
 
         if audio_stdout.read_exact(&mut audio_frame).is_ok() {
             for i in 0..options.audio_frame_bytes / 2 {
                 let sample = ((0x8000
-                    + (u32::from(audio_frame[(i * 2) + 1]) << 8 | u32::from(audio_frame[i * 2])))
+                    + (u32::from(audio_frame[i * 2 + 1]) << 8 | u32::from(audio_frame[i * 2])))
                     >> (16 - u32::from(options.sample_bit_depth)))
-                    & (0x0000FFFF >> (16 - u32::from(options.sample_bit_depth)));
+                    & (0xFFFF >> (16 - u32::from(options.sample_bit_depth)));
 
                 audio_frame[i * 2] = (sample & 0xFF) as u8;
-                audio_frame[(i * 2) + 1] = (sample >> 8) as u8;
+                audio_frame[i * 2 + 1] = (sample >> 8) as u8;
             }
         } else {
             audio_frame.fill(0);
         }
 
         writer.write_all(&audio_frame).unwrap();
+    }       */
+
+    // let mut audio_data;
+
+    while video_stdout.read_exact(&mut video_frame).is_ok() {
+        writer.write_all(&video_frame).unwrap();
+
+        if audio_stdout.read_exact(&mut audio_frame).is_ok() {
+            if audio_frame.len() == options.audio_frame_bytes {
+                for i in 0..1024 {
+                    // audio_data = ByteArray::new();
+                    // audio_data.write(&(audio_frame as u32));
+
+                    let temp_sample = ((u32::from(audio_frame[(i * 2) + 1]) << 8)
+                        | u32::from(audio_frame[i * 2]))
+                        + 0x8000;
+                    let sample = (temp_sample >> (16 - u32::from(options.sample_bit_depth)))
+                        & (0x0000FFFF >> (16 - u32::from(options.sample_bit_depth)));
+
+                    audio_frame[i * 2] = (sample & 0xFF) as u8;
+                    audio_frame[(i * 2) + 1] = (sample >> 8) as u8;
+
+                    audio_stdout = audio_child.stdout.take().unwrap();
+                    // audio_frame = vec![0; options.audio_frame_bytes];
+                }
+            } else {
+                let mut empty_samples = vec![];
+                for _i in 0..1024 {
+                    empty_samples.push(0x00);
+                    empty_samples.push(0x00);
+                }
+                audio_frame.extend(empty_samples);
+            }
+
+            writer.write_all(&audio_frame).unwrap();
+        }
+
+        video_child.wait().unwrap();
+        audio_child.wait().unwrap();
+
+        #[cfg(debug_assertions)]
+        {
+            let elapsed = timer.elapsed();
+            dbg!(elapsed);
+        }
+
+        writer.flush().unwrap();
     }
-
-    video_child.wait().unwrap();
-    audio_child.wait().unwrap();
-
-    #[cfg(debug_assertions)]
-    {
-        let elapsed = timer.elapsed();
-        dbg!(elapsed);
-    }
-
-    writer.flush().unwrap();
 }
 
 /// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
