@@ -122,10 +122,10 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv240x135:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=228:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
         case Model.Tv64x64:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=64:64:(ow-iw)/2:(oh-ih)/2,setsar=1` // TODO
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=64:64:(ow-iw)/2:(oh-ih)/2,setsar=1`
         case Model.Tv96x64:
-          return `scale=${$width}:${$height}`
-        // return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=96:64:(ow-iw)/2:(oh-ih)/2,setsar=1` // TODO TEST THIS
+          // return `scale=${$width}:${$height}`
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=96:64:(ow-iw)/2:(oh-ih)/2,setsar=1` // This maybe shoule be tested vs the above?
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Cover:
@@ -133,7 +133,7 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv240x135:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
         case Model.Tv64x64:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}` // TODO
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
         case Model.Tv96x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
       }
@@ -143,9 +143,10 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
         case Model.Tv240x135:
           return `scale=${$width}:${$height},hqdn3d`
         case Model.Tv64x64:
-          return `scale=${$width}:${$height}` // TODO - TEST THIS VS OTHER APPEARANCES
+          return `scale=${$width}:${$height}`
         case Model.Tv96x64:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
+          // return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
+          return `scale=${$width}:${$height}`
       }
   }
 })

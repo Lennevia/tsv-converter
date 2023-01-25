@@ -1,7 +1,9 @@
 //! Tauri commands.
 
-use std::fs::{self, OpenOptions};
-use std::io::{BufWriter, Read, Write};
+// use std::fs::{self, OpenOptions};
+// use std::io::{BufWriter, Read, Write};
+use std::fs::{self};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 #[cfg(debug_assertions)]
@@ -9,7 +11,8 @@ use std::time::Instant;
 
 // use byte_array::ByteArray;
 // use libmath::round;
-use notify::{Config, EventKind, RecursiveMode, Watcher};
+// use notify::{Config, EventKind, RecursiveMode, Watcher};
+use notify::{EventKind, RecursiveMode, Watcher};
 use tauri::async_runtime;
 use time::OffsetDateTime;
 
@@ -39,12 +42,12 @@ pub struct Options<'a> {
 
     // Video
     frame_rate: &'a str,
-    video_frame_bytes: usize,
+    // video_frame_bytes: usize,
 
-    // Audio
-    sample_bit_depth: u8,
-    sample_rate: &'a str,
-    audio_frame_bytes: usize,
+    // // Audio
+    // sample_bit_depth: u8,
+    // sample_rate: &'a str,
+    // audio_frame_bytes: usize,
 }
 
 /// Get file metadata from a path.

@@ -4,7 +4,7 @@
 
   import EditForm from '$components/EditForm.svelte'
   import FileInput from '$components/FileInput.svelte'
-  import FileStatTable from '$components/FileMetadata.svelte'
+  // import FileStatTable from '$components/FileMetadata.svelte'
   import { inputError, inputPath } from '$stores/file'
   import { crop, Crop } from '$stores/options'
 
@@ -53,7 +53,7 @@
         />
       </div>
 
-      <FileStatTable {duration} {videoWidth} {videoHeight} path={$inputPath} />
+      <!-- <FileStatTable {duration} {videoWidth} {videoHeight} path={$inputPath} /> -->
     </div>
 
     <!-- right group -->
