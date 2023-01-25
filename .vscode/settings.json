@@ -25,14 +25,18 @@
   },
   "css.lint.unknownAtRules": "ignore",
   "css.lint.importStatement": "ignore",
-  "eslint.validate": ["svelte"],
+  "eslint.validate": [
+    "svelte"
+  ],
   "eslint.packageManager": "yarn",
   "evenBetterToml.formatter.allowedBlankLines": 1,
   "evenBetterToml.formatter.arrayTrailingComma": false,
   "evenBetterToml.formatter.columnWidth": 100,
   "evenBetterToml.semanticTokens": true,
   "npm.packageManager": "yarn",
-  "prettier.documentSelectors": ["**/*.svelte"],
+  "prettier.documentSelectors": [
+    "**/*.svelte"
+  ],
   "rust-analyzer.checkOnSave.command": "clippy",
   "rust-analyzer.imports.granularity.enforce": true,
   "rust-analyzer.imports.granularity.group": "module",
@@ -44,5 +48,6 @@
     "Tauri",
     "unwatch",
     "vcodec"
-  ]
+  ],
+  "nrf-connect.topdir": "${nrf-connect.sdk:2.0.2}"
 }

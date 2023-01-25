@@ -32,9 +32,10 @@
     $savePath = await save({
       defaultPath: `${$outputName}`,
       filters: [
+        // TODO - this is where I would add on the titles "96x64" and remove the tsv extension
         {
-          name: `.${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`,
-          extensions: [`${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`]
+          name: `.${$model === Model.Tv96x64 ? 'avi' : 'avi'}`,
+          extensions: [`${$model === Model.Tv96x64 ? 'avi' : 'avi'}`]
         }
       ]
     })
@@ -62,9 +63,10 @@
 
     // .then(  async (): Promise<void> => {
 
-    if ($model === Model.Tv96x64) await invoke('convert', { options })
+    // if ($model === Model.Tv96x64) await invoke('convert', { options }) // TODO - this needs to change
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
     if ($model === Model.Tv64x64) await invoke('convert_mini_avi', { options })
+    if ($model === Model.Tv96x64) await invoke('convert_diy_avi', { options })
 
     loading = false
     // })
@@ -93,7 +95,7 @@
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
   <!-- TV model selection -->
   <fieldset class="form-fieldset flex flex-col items-start">
-    <legend class="form-legend">TV Option</legend>
+    <legend class="form-legend">TinyTV Model</legend>
     {#each Object.values(Model) as opt}
       <label
         class="flex items-center rounded-md px-2 py-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-700"

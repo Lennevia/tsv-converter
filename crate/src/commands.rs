@@ -148,6 +148,7 @@ fn sidecar_path(name: &str) -> PathBuf {
     }
 }
 
+/*
 /// Convert to Tiny Screen Video .tsv filetype.
 #[tauri::command]
 pub fn convert(options: Options<'_>) {
@@ -158,8 +159,8 @@ pub fn convert(options: Options<'_>) {
 
     let output_file = OpenOptions::new()
         .create(true)
-        .truncate(true)
-        .write(true)
+        .truncate(true) // necessary?
+        .write(true) // could this be append instead
         .open(&output_path)
         .unwrap();
     let mut writer = BufWriter::with_capacity(
@@ -217,74 +218,196 @@ pub fn convert(options: Options<'_>) {
     let mut audio_frame = vec![0; options.audio_frame_bytes]; // 0 - 2048
                                                               // let mut audio_data = ByteArray(audio_frame);
 
-    /*
-    while video_stdout.read_exact(&mut video_frame).is_ok() {
-        writer.write_all(&video_frame).unwrap();
+    // audio_frame.resize(options.audio_frame_bytes, 0);
+    // let result = audio_stdout.read_to_end(&mut audio_frame);
+    // println!("Stdout read: {}", result);
 
-        if audio_stdout.read_exact(&mut audio_frame).is_ok() {
-            for i in 0..options.audio_frame_bytes / 2 {
-                let sample = ((0x8000
-                    + (u32::from(audio_frame[i * 2 + 1]) << 8 | u32::from(audio_frame[i * 2])))
-                    >> (16 - u32::from(options.sample_bit_depth)))
-                    & (0xFFFF >> (16 - u32::from(options.sample_bit_depth)));
+    println!("end of audio def");
 
-                audio_frame[i * 2] = (sample & 0xFF) as u8;
-                audio_frame[i * 2 + 1] = (sample >> 8) as u8;
-            }
-        } else {
-            audio_frame.fill(0);
-        }
-
-        writer.write_all(&audio_frame).unwrap();
-    }       */
-
-    // let mut audio_data;
+    let mut counter = 0;
 
     while video_stdout.read_exact(&mut video_frame).is_ok() {
+        println!("enter while loop");
         writer.write_all(&video_frame).unwrap();
+        println!("video has been unwrapped");
+
+        let result = audio_stdout.read_exact(&mut audio_frame);
+        println!("Result = {:?}", result);
+        // println!("audio frame data is_ok");
+        println!("{:?}", audio_frame);
 
         if audio_stdout.read_exact(&mut audio_frame).is_ok() {
+            // OH NO
+            println!("audio frame data is_ok");
+            println!("{:?}", audio_frame);
+
+            // for j in 0..options.audio_frame_bytes + 1 {
+            //     audio_stdout.read_to_end(&mut audio_frame);
+            //     print!("After read{} ", audio_frame[j]);
+            // }
+            // println!();
+
             if audio_frame.len() == options.audio_frame_bytes {
-                for i in 0..1024 {
+                // how can I change this?
+                for i in 0..options.audio_frame_bytes / 2 {
                     // audio_data = ByteArray::new();
                     // audio_data.write(&(audio_frame as u32));
 
                     let temp_sample = ((u32::from(audio_frame[(i * 2) + 1]) << 8)
                         | u32::from(audio_frame[i * 2]))
                         + 0x8000;
-                    let sample = (temp_sample >> (16 - u32::from(options.sample_bit_depth)))
-                        & (0x0000FFFF >> (16 - u32::from(options.sample_bit_depth)));
+                    let sample = (temp_sample >> (16 - 10)) & (0x0000FFFF >> (16 - 10));
 
                     audio_frame[i * 2] = (sample & 0xFF) as u8;
                     audio_frame[(i * 2) + 1] = (sample >> 8) as u8;
 
-                    audio_stdout = audio_child.stdout.take().unwrap();
+                    // for j in 0..options.audio_frame_bytes / 2 {
+                    //     print!("{} ", audio_frame[j]);
+                    // }
+                    // println!();
+
+                    // audio_stdout = audio_child.stdout.take().unwrap();
                     // audio_frame = vec![0; options.audio_frame_bytes];
+
+                    // println!("audio samples have been converted {} times", counter);
+                    // counter += 1;
                 }
+                println!("audio samples have been converted {} times", counter);
+                counter += 1;
             } else {
-                let mut empty_samples = vec![];
-                for _i in 0..1024 {
-                    empty_samples.push(0x00);
-                    empty_samples.push(0x00);
-                }
-                audio_frame.extend(empty_samples);
+                println!("fill with 0");
+                // let mut empty_samples = vec![];
+                // for _i in 0..options.audio_frame_bytes / 2 {
+                //     empty_samples.push(0x00);
+                //     empty_samples.push(0x00);
+                // }
+                // audio_frame.extend(empty_samples);
+
+                audio_frame.fill(0x00);
             }
 
-            writer.write_all(&audio_frame).unwrap();
+            println!("after sample conversion");
+            // for j in 0..2048 {
+            //     print!("{} ", audio_frame[j]);
+            // }
+            // println!();
         }
 
-        video_child.wait().unwrap();
-        audio_child.wait().unwrap();
-
-        #[cfg(debug_assertions)]
-        {
-            let elapsed = timer.elapsed();
-            dbg!(elapsed);
-        }
-
-        writer.flush().unwrap();
+        writer.write_all(&audio_frame).unwrap();
     }
+
+    // for j in 0..options.audio_frame_bytes / 2 {
+    //     print!("Initial: {} ", audio_frame[j]);
+    // }
+    // println!();
+
+    // while video_stdout.read_exact(&mut video_frame).is_ok() {
+    //     writer.write_all(&video_frame).unwrap();
+
+    //     if audio_stdout.read_exact(&mut audio_frame).is_ok() {
+    //         for i in 0..options.audio_frame_bytes / 2 {
+    //             let sample = ((0x8000
+    //                 + (u32::from(audio_frame[i * 2 + 1]) << 8 | u32::from(audio_frame[i * 2])))
+    //                 >> (16 - u32::from(options.sample_bit_depth)))
+    //                 & (0xFFFF >> (16 - u32::from(options.sample_bit_depth)));
+
+    //             audio_frame[i * 2] = (sample & 0xFF) as u8;
+    //             audio_frame[i * 2 + 1] = (sample >> 8) as u8;
+    //         }
+    //     } else {
+    //         audio_frame.fill(0);
+    //     }
+
+    //     writer.write_all(&audio_frame).unwrap();
+    // }
+
+    // let mut audio_data;
+
+    //-----------------------------------------------------
+    // println!("end of audio def");
+
+    // let mut counter = 0;
+
+    // while video_stdout.read_exact(&mut video_frame).is_ok() {
+    //     println!("enter while loop");
+    //     writer.write_all(&video_frame).unwrap();
+    //     println!("video has been unwrapped");
+
+    //     let result = audio_stdout.read_to_end(&mut audio_frame);
+    //     println!("Result = {:?}", result);
+
+    //     if audio_stdout.read_to_end(&mut audio_frame).is_ok() {
+    //         // OH NO
+    //         println!("audio frame data is_ok");
+
+    //         for j in 0..options.audio_frame_bytes {
+    //             print!("After read{} ", audio_frame[j]);
+    //         }
+    //         println!();
+
+    //         if audio_frame.len() == options.audio_frame_bytes {
+    //             for i in 0..options.audio_frame_bytes / 2 {
+    //                 // audio_data = ByteArray::new();
+    //                 // audio_data.write(&(audio_frame as u32));
+
+    //                 let temp_sample = ((u32::from(audio_frame[(i * 2) + 1]) << 8)
+    //                     | u32::from(audio_frame[i * 2]))
+    //                     + 0x8000;
+    //                 let sample = (temp_sample >> (16 - 10)) & (0x0000FFFF >> (16 - 10));
+
+    //                 audio_frame[i * 2] = (sample & 0xFF) as u8;
+    //                 audio_frame[(i * 2) + 1] = (sample >> 8) as u8;
+
+    //                 // for j in 0..options.audio_frame_bytes / 2 {
+    //                 //     print!("{} ", audio_frame[j]);
+    //                 // }
+    //                 // println!();
+
+    //                 // audio_stdout = audio_child.stdout.take().unwrap();
+    //                 // audio_frame = vec![0; options.audio_frame_bytes];
+
+    //                 // println!("audio samples have been converted {} times", counter);
+    //                 // counter += 1;
+    //             }
+    //             println!("audio samples have been converted {} times", counter);
+    //             counter += 1;
+    //         } else {
+    //             println!("fill with 0");
+    //             let mut empty_samples = vec![];
+    //             for _i in 0..options.audio_frame_bytes / 2 {
+    //                 empty_samples.push(0x00);
+    //                 empty_samples.push(0x00);
+    //             }
+    //             audio_frame.extend(empty_samples);
+
+    //             println!("fill with 0");
+
+    //             // audio_frame.fill(0x00);
+    //         }
+
+    //         println!("after sample conversion");
+    //         // for j in 0..2048 {
+    //         //     print!("{} ", audio_frame[j]);
+    //         // }
+    //         // println!();
+    //     }
+
+    //     writer.write_all(&audio_frame).unwrap();
+    // }
+    // --------------------------------------------------------
+
+    video_child.wait().unwrap();
+    audio_child.wait().unwrap();
+
+    #[cfg(debug_assertions)]
+    {
+        let elapsed = timer.elapsed();
+        dbg!(elapsed);
+    }
+
+    writer.flush().unwrap();
 }
+*/
 
 /// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
 #[tauri::command]
@@ -293,7 +416,9 @@ pub fn convert_avi(options: Options<'_>) {
     let output_path = Path::new(&options.save_path)
         .with_file_name(&options.output_name)
         .with_extension("avi");
+
     let _ = fs::remove_file(&output_path);
+
     let ffmpeg_path = sidecar_path("ffmpeg");
     #[cfg(debug_assertions)]
     let timer = Instant::now();
@@ -341,7 +466,7 @@ pub fn convert_avi(options: Options<'_>) {
     }
 }
 
-/// Convert to .AVI file type fixed to the resolution of the 240x135 TV.
+/// Convert to .AVI file type fixed to the resolution of the 64x64 TV mini
 #[tauri::command]
 pub fn convert_mini_avi(options: Options<'_>) {
     // let path = Path::new(&options.path);
@@ -357,6 +482,60 @@ pub fn convert_mini_avi(options: Options<'_>) {
     #[rustfmt::skip]
     cmd.args([
         // "-hide_banner", "-loglevel quiet", // makes ffmpeg not print verbose output to terminal
+        "-i", options.path,
+        "-r", options.frame_rate,
+        "-vf", options.scale,
+        "-b:v", "300k",  
+        "-maxrate", "300k",
+        "-bufsize", "64k",
+        "-c:v", "mjpeg",
+        "-acodec", "pcm_u8",
+        "-ar", "10000",
+        "-ac", "1",
+        options.save_path,
+    ])
+    .stdin(Stdio::null())
+    .stdout(Stdio::null())
+    .stderr(Stdio::piped());
+
+    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    let mut child = cmd.spawn().unwrap();
+    let mut stderr = String::new();
+    child
+        .stderr
+        .take()
+        .unwrap()
+        .read_to_string(&mut stderr)
+        .unwrap();
+    child.wait().unwrap();
+
+    #[cfg(debug_assertions)]
+    {
+        dbg!(stderr);
+        let elapsed = timer.elapsed();
+        dbg!(elapsed);
+    }
+}
+
+/// Convert to .AVI file type fixed to the resolution of the 96x64 DIY TV
+#[tauri::command]
+pub fn convert_diy_avi(options: Options<'_>) {
+    // let path = Path::new(&options.path);
+    let output_path = Path::new(&options.save_path)
+        .with_file_name(&options.output_name)
+        .with_extension("avi");
+    let _ = fs::remove_file(&output_path);
+    let ffmpeg_path = sidecar_path("ffmpeg");
+    #[cfg(debug_assertions)]
+    let timer = Instant::now();
+
+    let mut cmd = Command::new(&ffmpeg_path);
+    #[rustfmt::skip]
+    cmd.args([
         "-i", options.path,
         "-r", options.frame_rate,
         "-vf", options.scale,

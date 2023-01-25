@@ -9,9 +9,9 @@ export enum Crop {
 
 /** Tv model versions that determine method of conversion to use */
 export enum Model {
-  Tv96x64 = 'TinyTV - 96x64',
   Tv240x135 = 'TinyTV 2 - 216x135',
-  Tv64x64 = 'TinyTVmini - 64x64'
+  Tv64x64 = 'TinyTV Mini - 64x64',
+  Tv96x64 = 'TinyTV DIY Kit - 96x64'
 }
 
 /** Settings data structure **/
@@ -56,46 +56,46 @@ export const duration = writable(NaN) // TODO - is this used?
 export const savePath = writable('None selected')
 
 /** TV variables */
-export const model = writable(Model.Tv96x64) // Default selected option
+export const model = writable(Model.Tv240x135) // Default selected option
 
 export const width = derived(model, ($model) => {
   switch ($model) {
-    case Model.Tv96x64:
-      return 96
     case Model.Tv240x135:
       return 216 // changed from 240
     case Model.Tv64x64:
       return 64
+    case Model.Tv96x64:
+      return 96
   }
 })
 export const height = derived(model, ($model) => {
   switch ($model) {
-    case Model.Tv96x64:
-      return 64
     case Model.Tv240x135:
       return 135
     case Model.Tv64x64:
+      return 64
+    case Model.Tv96x64:
       return 64
   }
 })
 export const sampleBitDepth = derived(model, ($model) => {
   switch ($model) {
-    case Model.Tv96x64:
-      return 10
     case Model.Tv240x135:
       return 8
     case Model.Tv64x64:
       return 10 // TODO
+    case Model.Tv96x64:
+      return 10
   }
 })
 export const frameRate = derived(model, ($model) => {
   switch ($model) {
-    case Model.Tv96x64:
-      return 30
     case Model.Tv240x135:
-      return 24
+      return 24 // TODO - should this be 30?
     case Model.Tv64x64:
-      return 30 // TODO
+      return 30 // TODO - should be 30
+    case Model.Tv96x64:
+      return 24
   }
 })
 
@@ -119,32 +119,33 @@ export const scale = derived([crop, width, height, model], ([$crop, $width, $hei
   switch ($crop) {
     case Crop.Contain:
       switch ($model) {
-        case Model.Tv96x64:
-          return `scale=${$width}:${$height}`
         case Model.Tv240x135:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=228:136:(ow-iw)/2:(oh-ih)/2,setsar=1,hqdn3d` // https://stackoverflow.com/questions/46671252/how-to-add-black-borders-to-video
         case Model.Tv64x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=64:64:(ow-iw)/2:(oh-ih)/2,setsar=1` // TODO
+        case Model.Tv96x64:
+          return `scale=${$width}:${$height}`
+        // return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=96:64:(ow-iw)/2:(oh-ih)/2,setsar=1` // TODO TEST THIS
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Cover:
       switch ($model) {
-        case Model.Tv96x64:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
         case Model.Tv240x135:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height},hqdn3d` // Set height dynamically and then crop off extra height to give zoom effect
         case Model.Tv64x64:
           return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}` // TODO
+        case Model.Tv96x64:
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=increase,crop=${$width}:${$height}`
       }
     // eslint-disable-next-line no-fallthrough
     case Crop.Fill:
       switch ($model) {
-        case Model.Tv96x64:
-          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
         case Model.Tv240x135:
           return `scale=${$width}:${$height},hqdn3d`
         case Model.Tv64x64:
-          return `scale=${$width}:${$height}` // TODO
+          return `scale=${$width}:${$height}` // TODO - TEST THIS VS OTHER APPEARANCES
+        case Model.Tv96x64:
+          return `scale=${$width}:${$height}:force_original_aspect_ratio=decrease,pad=${$width}:${$height}:(ow-iw)/2:(oh-ih)/2`
       }
   }
 })

@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "TinyTV Video Converter",
+    "productName": "TinyTV® Video Converter",
     "version": "0.1.0"
   },
   "build": {
@@ -23,7 +23,7 @@
       ],
       "resources": [],
       "externalBin": ["bin/ffmpeg"],
-      "copyright": "© Copyright 2022 TinyCircuits",
+      "copyright": "© Copyright 2023 TinyCircuits",
       "category": "Utility",
       "shortDescription": "TinyCircuits TinyTV Video Converter.",
       "longDescription": "TinyCircuits TinyTV Video Converter.",
@@ -32,6 +32,7 @@
       },
       "macOS": {
         "license": "../LICENSE",
+        "minimumSystemVersion": "10.13",
         "frameworks": [],
         "exceptionDomain": "",
         "signingIdentity": null,
@@ -76,9 +77,9 @@
     },
     "windows": [
       {
-        "title": "TinyTV Video Converter",
-        "width": 800,
-        "height": 600,
+        "title": "TinyTV® Video Converter",
+        "width": 750,
+        "height": 450,
         "visible": false,
         "resizable": false,
         "fullscreen": false

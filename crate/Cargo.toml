@@ -24,7 +24,7 @@ time = { version = "0.3.11", features = ["serde"] }
 # math = "0.10.0"
 # round = "0.1.0"
 # libmath = "0.2.1"
-byte_array = "0.1.0"
+# byte_array = "0.1.0"
 
 [dependencies.tauri]
 version = "1.0.3"
