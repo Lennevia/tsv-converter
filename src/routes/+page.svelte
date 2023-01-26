@@ -20,14 +20,16 @@
 </script>
 
 {#if $inputPath === undefined}
-  <div
+  
+<div
     in:fade={{ delay: 300, duration: 300 }}
     out:fade={{ duration: 300 }}
-    class="flex h-full items-center justify-center"
+    class="flex flex-col h-full items-center justify-center"
   >
-    <FileInput />
+  <FileInput />
+  <br>
     {#if $inputError !== undefined}
-      <p>
+      <p class="whitespace-pre">     
         {$inputError}
       </p>
     {/if}

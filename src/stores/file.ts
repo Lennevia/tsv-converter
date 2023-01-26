@@ -24,5 +24,5 @@ inputPath.subscribe((path) => {
 // listen for filesystem modify/remove events and unset filePath
 listen('fs-change', () => {
   inputPath.set(undefined)
-  inputError.set('The active file was modified/removed')
+  inputError.set('ERROR: The active file was modified or removed - please try again.')
 }).catch(console.error)

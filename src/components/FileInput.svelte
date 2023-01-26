@@ -35,7 +35,7 @@
       return
     }
     if (Array.isArray(path)) {
-      $inputError = 'Please select only one file'
+      $inputError = 'ERROR: Please select only one file.'
       loading = false
       return
     }
