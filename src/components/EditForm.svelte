@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api'
   import { save } from '@tauri-apps/api/dialog'
+  // import { onMount } from 'svelte';
 
   import { inputName, inputPath, outputName } from '$stores/file'
   import {
@@ -63,6 +64,8 @@
 
     // .then(  async (): Promise<void> => {
 
+    // The screenshot needs to be triggered when a video is selected, this is the conversion async function, this will not work
+
     // if ($model === Model.Tv96x64) await invoke('convert', { options }) // TODO - this needs to change
     if ($model === Model.Tv240x135) await invoke('convert_avi', { options })
     if ($model === Model.Tv64x64) await invoke('convert_mini_avi', { options })
@@ -93,6 +96,10 @@
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
+
+  <!-- <img src="screenshot.jpg" alt="Italian Trulli"> -->
+  <!-- <img src="/path/to/output/image.ppm" alt="screen capture"/> -->
+
   <!-- TV model selection -->
   <fieldset class="form-fieldset flex flex-col items-start">
     <legend class="form-legend">TinyTV Model</legend>

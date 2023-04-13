@@ -1,18 +1,45 @@
 //! Tauri commands.
 
-// use std::fs::{self, OpenOptions};
-// use std::io::{BufWriter, Read, Write};
-use std::fs::{self};
-use std::io::Read;
+use std::fs::{self, OpenOptions};
+use std::io::{BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 #[cfg(debug_assertions)]
 use std::time::Instant;
+// use serde_json::json;
+// use base64::encode_config;
+// use base64::{Engine, engine::general_purpose, alphabet};
+// use base64::{Engine as _, engine::general_purpose};
+use base64::{display::Base64Display, engine::general_purpose::STANDARD};
+// use web_sys::window;
+// use tauri::window::Window;
+// use tauri::event::emit;
+use tauri::Window;
+// use main::Payload;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+// extern crate lazy_static;
+
+
+// the payload type must implement `Serialize` and `Clone`.
+#[derive(Clone, serde::Serialize)]
+pub struct Payload{
+  pub picture_data: String,
+}
+
+// #[derive(Clone, serde::Serialize)]
+lazy_static! {
+    pub static ref PAYLOAD: Mutex<Payload> = Mutex::new(Payload {
+        picture_data: String::new(),
+    });
+}
+
+
+// use tide::new;
 
 // use byte_array::ByteArray;
 // use libmath::round;
-// use notify::{Config, EventKind, RecursiveMode, Watcher};
-use notify::{EventKind, RecursiveMode, Watcher};
+use notify::{Config, EventKind, RecursiveMode, Watcher};
 use tauri::async_runtime;
 use time::OffsetDateTime;
 
@@ -31,6 +58,7 @@ pub struct Metadata {
     modified: Option<OffsetDateTime>,
 }
 
+
 /// Video conversion options.
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -42,12 +70,12 @@ pub struct Options<'a> {
 
     // Video
     frame_rate: &'a str,
-    // video_frame_bytes: usize,
+    video_frame_bytes: usize,
 
-    // // Audio
-    // sample_bit_depth: u8,
-    // sample_rate: &'a str,
-    // audio_frame_bytes: usize,
+    // Audio
+    sample_bit_depth: u8,
+    sample_rate: &'a str,
+    audio_frame_bytes: usize,
 }
 
 /// Get file metadata from a path.
@@ -78,33 +106,33 @@ pub fn metadata(path: &Path) -> Metadata {
 }
 
 /// Watches a file path for modify/remove events, and forwards the event to the frontend.
-#[tauri::command]
-pub async fn watch(path: PathBuf, window: tauri::Window) {
-    let (tx, mut rx) = async_runtime::channel(1); // Channel for modified/removed file
-    if !path.is_file() {
-        return;
-    }
-    let mut watcher =
-        notify::recommended_watcher(move |res: Result<notify::Event, notify::Error>| {
-            match res {
-                Ok(event) => match event.kind {
-                    EventKind::Modify(_) | EventKind::Remove(_) => {
-                        tx.blocking_send(event.kind).unwrap();
-                    }
-                    _ => (),
-                },
-                Err(err) => eprintln!("Path watch error: {err:?}"),
-            };
-        })
-        .unwrap();
-    // watcher.configure(Config::PreciseEvents(true)).unwrap();
-    watcher.watch(&path, RecursiveMode::NonRecursive).unwrap();
+// #[tauri::command]
+// pub async fn watch(path: PathBuf, window: tauri::Window) {
+//     let (tx, mut rx) = async_runtime::channel(1); // Channel for modified/removed file
+//     if !path.is_file() {
+//         return;
+//     }
+//     let mut watcher =
+//         notify::recommended_watcher(move |res: Result<notify::Event, notify::Error>| {
+//             match res {
+//                 Ok(event) => match event.kind {
+//                     EventKind::Modify(_) | EventKind::Remove(_) => {
+//                         tx.blocking_send(event.kind).unwrap();
+//                     }
+//                     _ => (),
+//                 },
+//                 Err(err) => eprintln!("Path watch error: {err:?}"),
+//             };
+//         })
+//         .unwrap();
+//     // watcher.configure(Config::PreciseEvents(true)).unwrap();
+//     watcher.watch(&path, RecursiveMode::NonRecursive).unwrap();
 
-    if let Some(event_kind) = rx.recv().await {
-        window.emit("fs-change", event_kind).unwrap();
-        watcher.unwatch(&path).unwrap();
-    }
-}
+//     if let Some(event_kind) = rx.recv().await {
+//         window.emit("fs-change", event_kind).unwrap();
+//         watcher.unwatch(&path).unwrap();
+//     }
+// }
 
 /// Calculate a possible output file stem from a file path.
 #[tauri::command]
@@ -577,3 +605,101 @@ pub fn convert_diy_avi(options: Options<'_>) {
         dbg!(elapsed);
     }
 }
+
+
+/// Take a screen capture of the video to display in the app for UI/UX
+/// ffmpeg -ss 01:23:45 -i input -frames:v 1 -q:v 2 output.jpg
+/// from: https://stackoverflow.com/questions/27568254/how-to-extract-1-screenshot-for-a-video-with-ffmpeg-at-a-given-time
+#[tauri::command]
+pub fn screenshot(options: Options<'_>) {
+    let ffmpeg_path = sidecar_path("ffmpeg");
+    let preview_time = "10"; // example preview time
+    let output_width = 192; // example output width
+    let output_height = 128; // example output height
+
+
+let vidcommand = vec![
+    "-ss", preview_time,
+    "-i", options.path,
+    // "-ss", "1",
+    "-f", "image2pipe",
+    "-vf", options.scale,
+    "-pix_fmt", "rgb24",
+    "-vcodec", "rawvideo",
+    "-"
+];
+
+
+#[cfg(windows)]
+let mut info_pipe = Command::new(&ffmpeg_path)
+    .args(&vidcommand)
+    .stdin(Stdio::null())
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .startup_info(startup_info)
+    .spawn()
+    .expect("Failed to execute command");
+#[cfg(not(windows))]
+let mut info_pipe = Command::new(&ffmpeg_path)
+    .args(&vidcommand)
+    .stdin(Stdio::null())
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped())
+    .spawn()
+    .expect("Failed to execute command");
+
+    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
+    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
+    #[cfg(windows)]
+    cmd.creation_flags(0x08000000);
+
+    let mut vid_frame = vec![0u8; (output_width*2 * output_height*2)*3];
+
+    info_pipe.stdout.as_mut().unwrap().read(&mut vid_frame).unwrap();
+
+
+    let mut xdata = format!("P6 {} {} 255 ", output_width*2, output_height*2).into_bytes();
+    xdata.extend_from_slice(&vid_frame);
+
+
+    info_pipe.kill().expect("Failed to kill ffmpeg process");
+    info_pipe.wait_with_output().expect("Failed to wait for process");
+    
+    // let screenshot_data = Base64Display::new(&xdata, &STANDARD);
+    // let encoded_data = format!("data:image/png;base64,{}", screenshot_data);
+
+    // // let my_struct = MyStruct { my_field: 42 };
+
+    // let main_window = app.get_window("main").unwrap();
+
+    // let payload = Payload { picture_data: encoded_data };
+    // main_window.emit_all("screenshotEvent", payload).unwrap();
+
+
+
+
+    let screenshot_data = Base64Display::new(&xdata, &STANDARD);
+    // let picture_data = format!("data:image/png;base64,{}", screenshot_data);
+
+    // acquire a lock on the mutex
+    let mut payload = PAYLOAD.lock().unwrap();
+
+// modify the picture_data field
+// payload.picture_data = "some picture data".to_string();
+    payload.picture_data = format!("data:image/png;base64,{}", screenshot_data);
+    // Payload { picture_data }
+
+    // let payload: Payload;
+
+    // payload.picture_data = encoded_data;
+
+    // emit a custom event to the front-end with the encoded image data as the payload
+    // window.emit("screenshot", Payload::picture_data).expect("Failed to emit screenshot event");
+}
+
+// #[tauri::command]
+// pub fn get_screenshot( window: Window) -> String {
+//     let mut payload = PAYLOAD.lock().unwrap();
+
+//     payload.picture_data
+// }

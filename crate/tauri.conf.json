@@ -38,6 +38,7 @@
         "signingIdentity": null,
         "providerShortName": null,
         "entitlements": null
+
       },
       "windows": {
         "certificateThumbprint": null,
@@ -79,14 +80,14 @@
       {
         "title": "TinyTV® Video Converter",
         "width": 750,
-        "height": 450,
+        "height": 500,
         "visible": false,
         "resizable": false,
         "fullscreen": false
       }
     ],
     "security": {
-      "csp": "default-src: 'self'; media-src 'self' asset: https://asset.localhost"
+      "csp": "img-src 'self' data: file:; default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
     }
   }
 }

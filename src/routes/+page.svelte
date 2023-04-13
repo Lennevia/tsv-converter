@@ -4,9 +4,12 @@
 
   import EditForm from '$components/EditForm.svelte'
   import FileInput from '$components/FileInput.svelte'
-  // import FileStatTable from '$components/FileMetadata.svelte'
   import { inputError, inputPath } from '$stores/file'
-  import { crop, Crop } from '$stores/options'
+  import {  Crop, crop,  } from '$stores/options'
+  // import { type Options, scale } from '$stores/options'
+  // import Loading from '~icons/tabler/loader-2'
+
+
 
   const videoObjectFit = {
     [Crop.Contain]: 'object-contain',
@@ -14,10 +17,22 @@
     [Crop.Fill]: 'object-fill'
   }
 
-  let duration: number
+  // let duration: number
   let videoWidth: number
   let videoHeight: number
+
+
+
+
+
+
+  
+
+
+
 </script>
+
+
 
 {#if $inputPath === undefined}
   
@@ -48,14 +63,18 @@
           src={convertFileSrc($inputPath)}
           controls
           loop
-          bind:duration
-          bind:videoWidth
+          preload="auto"
           bind:videoHeight
+          bind:videoWidth
           class="h-full w-full rounded-md {videoObjectFit[$crop]}"
         />
       </div>
-
-      <!-- <FileStatTable {duration} {videoWidth} {videoHeight} path={$inputPath} /> -->
+<!-- 
+      <canvas bind:this={canvas} style="display:none; border: 1px solid white;"></canvas>
+      <img src="{imageSrc}" alt="Snapshot" style="border: 1px solid pink;"> -->
+      <!-- <img src="/Users/rena/Documents/TinyTV-Tested-Video-Thumbnail.jpg" alt="imagejjk" style="border: 1px solid blue;">  -->
+      <!-- <img src="https://cdn.shopify.com/s/files/1/1125/2198/products/greythumby1065x1065-min_1800x1800.jpg?v=1674158925" alt="test" style="border: 1px solid orange;">  -->
+      <div style="overflow-wrap: break-word"><b>Input Path:</b> {$inputPath}</div>
     </div>
 
     <!-- right group -->

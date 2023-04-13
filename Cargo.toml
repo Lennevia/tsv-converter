@@ -10,3 +10,5 @@ codegen-units = 1
 lto = true
 # panic = "abort"
 strip = true
+
+
