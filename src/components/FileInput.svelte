@@ -1,9 +1,8 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api'
   import { open, type DialogFilter, type OpenDialogOptions } from '@tauri-apps/api/dialog'
-  import { listen } from '@tauri-apps/api/event';
+  // import { listen, emit } from '@tauri-apps/api/event'
   import { onMount } from 'svelte'
- 
 
   import { inputError, inputPath } from '$stores/file'
   import {
@@ -23,16 +22,15 @@
   // import { type Options, scale } from '$stores/options'
   import Loading from '~icons/tabler/loader-2'
 
-
   onMount(() => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur()
-      console.log(imageData)
-    console.dir(imageData)
+      // console.log(imageData)
+      // console.dir(imageData)
     }
-  //   window.tauri.listen("screenshot", (data) => {
-  //   screenshotData = data;
-  // });
+    //   window.tauri.listen("screenshot", (data) => {
+    //   screenshotData = data;
+    // });
   })
 
   const videoFilter: DialogFilter = {
@@ -47,7 +45,7 @@
   let className = ''
   export { className as class }
   let loading = false
-  let imageData: string | null = null;
+  let imageData: string
 
   const openFileDialog = async (): Promise<void> => {
     loading = true
@@ -66,13 +64,13 @@
 
     // if (await ffprobe(path)) { //  If the url cannot be opened or recognized as a multimedia file, a positive exit code is returned.
     //   $inputError = undefined
-      $inputPath = path
+    $inputPath = path
     // } else {
     //   $inputPath = undefined
     //   $inputError = "Couldn't read the file's metadata"
     // }
 
-    if ($inputPath === undefined ) return
+    if ($inputPath === undefined) return
 
     // keep loading icon when transitioning views
     if (
@@ -82,7 +80,17 @@
       loading = false
     }
 
-    const dummyoutput = 'string';
+    // await invoke('screenshot', { options })
+    // imageData = invoke('screenshot', { options })
+
+    // try {
+    //   const response = await invoke('screenshot', { options })
+    //   imageData = response as string
+    // } catch (error) {
+    //   console.error(error)
+    // }
+
+    const dummyoutput = 'string'
 
     const options: Options = {
       path: $inputPath,
@@ -100,47 +108,47 @@
       // [key in Model]: $model
     }
 
-    await invoke('screenshot', { options })
+    // onMount(async () => {
+    const response = await invoke<{ data: string }>('screenshot', { options })
+    imageData = response.data
+    // })
+    // async () => {
+    // const response = await invoke('screenshot', { options })
+    // imageData = response.data
 
+    // const response = await invoke('take_screenshot')
+    // imageData = response.data as string
 
+    // emit('screenshotEvent')
 
-
-    // listen for the custom "screenshot" event from the Rust backend
-    listen('screenshotEvent', (event) => {
-      imageData = event.payload as string;
-    });
+    // // listen for the custom "screenshot" event from the Rust backend
+    // listen('screenshotEvent', (event) => {
+    //   imageData = event.payload as string
+    // })
 
     // console.log(imageData)
     // console.dir(imageData)
-
-    // console.log(imageData)
-    // console.dir(imageData)
-
 
     // const src = `data:image/png;base64,${imageData}`;
-
   }
-
-
 </script>
-
-
-
 
 <!-- svelte-ignore a11y-media-has-caption -->
 <!-- <video id="video_source" controls autoplay>
   <source type="video/mp4" />
 </video> -->
 
-
 <!-- <img src="output.jpg" alt="Italian Trulli"> -->
 
 <!-- <img src={screenshotData} alt="alternate" class:invisible={loading}/> -->
 <!-- <img id="screenshot" alt="Screenshot" /> -->
-<!-- <img src={imageData} alt="Screenshot"> -->
-<img src={`data:image/png;base64,${imageData}`} alt="Screenshot" />
 
+<!-- <img src={imageData} alt="Screenshot" />
+<img src={`data:image/png;base64,${imageData}`} alt="Screenshot-2" />
 
+{#if imageData}
+  <img src={imageData} alt="Screenshot" />
+{/if} -->
 
 <button
   type="button"
@@ -158,3 +166,7 @@
   <div />
   <span class:invisible={loading}>Select a video</span>
 </button>
+{#if imageData}
+  <p>{imageData}</p>
+  <img src={imageData} alt="Screenshot" />
+{/if}

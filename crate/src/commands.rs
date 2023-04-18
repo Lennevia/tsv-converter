@@ -10,21 +10,25 @@ use std::time::Instant;
 // use base64::encode_config;
 // use base64::{Engine, engine::general_purpose, alphabet};
 // use base64::{Engine as _, engine::general_purpose};
-use base64::{display::Base64Display, engine::general_purpose::STANDARD};
+// use base64::{display::Base64Display, engine::general_purpose::STANDARD};
+use base64::{engine::general_purpose, Engine as _};
 // use web_sys::window;
 // use tauri::window::Window;
 // use tauri::event::emit;
 use tauri::Window;
 // use main::Payload;
-use std::sync::Mutex;
 use lazy_static::lazy_static;
+use std::sync::Mutex;
 // extern crate lazy_static;
-
+use serde::{Deserialize, Serialize};
+use serde_json::{Result, Value};
+use std::fs::File;
+use std::io::prelude::*;
 
 // the payload type must implement `Serialize` and `Clone`.
 #[derive(Clone, serde::Serialize)]
-pub struct Payload{
-  pub picture_data: String,
+pub struct Payload {
+    pub picture_data: String,
 }
 
 // #[derive(Clone, serde::Serialize)]
@@ -33,7 +37,6 @@ lazy_static! {
         picture_data: String::new(),
     });
 }
-
 
 // use tide::new;
 
@@ -57,7 +60,6 @@ pub struct Metadata {
     #[serde(with = "time::serde::timestamp::option")]
     modified: Option<OffsetDateTime>,
 }
-
 
 /// Video conversion options.
 #[derive(serde::Deserialize)]
@@ -606,96 +608,123 @@ pub fn convert_diy_avi(options: Options<'_>) {
     }
 }
 
+#[derive(Serialize)]
+pub struct ScreenshotResponse {
+    pub data: String,
+}
 
 /// Take a screen capture of the video to display in the app for UI/UX
 /// ffmpeg -ss 01:23:45 -i input -frames:v 1 -q:v 2 output.jpg
 /// from: https://stackoverflow.com/questions/27568254/how-to-extract-1-screenshot-for-a-video-with-ffmpeg-at-a-given-time
+///
+/*
 #[tauri::command]
-pub fn screenshot(options: Options<'_>) {
+pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
     let ffmpeg_path = sidecar_path("ffmpeg");
-    let preview_time = "10"; // example preview time
+    // let preview_time = "00:00:00"; // example preview time
     let output_width = 192; // example output width
     let output_height = 128; // example output height
 
+    let vidcommand = vec![
+        "-ss",
+        "00:00:00",
+        "-i",
+        options.path,
+        // "-ss",
+        // "1",
+        "-f",
+        "image2pipe",
+        "-vf",
+        "scale=192:128",
+        "-pix_fmt",
+        "rgb24",
+        "-vcodec",
+        "rawvideo",
+        "-",
+    ];
 
-let vidcommand = vec![
-    "-ss", preview_time,
-    "-i", options.path,
-    // "-ss", "1",
-    "-f", "image2pipe",
-    "-vf", options.scale,
-    "-pix_fmt", "rgb24",
-    "-vcodec", "rawvideo",
-    "-"
-];
-
-
-#[cfg(windows)]
-let mut info_pipe = Command::new(&ffmpeg_path)
-    .args(&vidcommand)
-    .stdin(Stdio::null())
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .startup_info(startup_info)
-    .spawn()
-    .expect("Failed to execute command");
-#[cfg(not(windows))]
-let mut info_pipe = Command::new(&ffmpeg_path)
-    .args(&vidcommand)
-    .stdin(Stdio::null())
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .spawn()
-    .expect("Failed to execute command");
+    // let mut info_pipe = Command::new(&ffmpeg_path)
+    //     .args(&vidcommand)
+    //     .stdin(Stdio::piped())
+    //     .stdout(Stdio::piped())
+    //     .stderr(Stdio::piped())
+    //     .spawn()
+    //     .expect("Failed to execute command");
 
     // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
     // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-    #[cfg(windows)]
-    cmd.creation_flags(0x08000000);
+    // #[cfg(windows)]
+    // info_pipe.creation_flags(0x08000000);
 
-    let mut vid_frame = vec![0u8; (output_width*2 * output_height*2)*3];
+    // Create a buffer for storing the raw video frame data read from ffmpeg:
+    // vid_frame is a vector initialized with length (output_width * 2 * output_height * 2) * 3 and filled with zeros
+    // The output_width * 2 * output_height * 2 expression calculates the number of pixels in the frame, and * 3 accounts
+    // for the three color channels (red, green, blue) that are encoded in each pixel.
+    /*let mut vid_frame = vec![0u8; (output_width * 2 * output_height * 2) * 3];
 
-    info_pipe.stdout.as_mut().unwrap().read(&mut vid_frame).unwrap();
+        // From the ffmpeg terminal, collect the image data into the vid_frame vector
+        info_pipe
+            .stdout
+            .as_mut()
+            .unwrap()
+            .read_exact(&mut vid_frame)
+            .unwrap();
 
+        let mut xdata = format!("P6 {} {} 255 ", output_width * 2, output_height * 2).into_bytes();
+        xdata.extend_from_slice(&vid_frame);
 
-    let mut xdata = format!("P6 {} {} 255 ", output_width*2, output_height*2).into_bytes();
-    xdata.extend_from_slice(&vid_frame);
+        info_pipe.kill().expect("Failed to kill ffmpeg process");
+        info_pipe
+            .wait_with_output()
+            .expect("Failed to wait for process");
+    */
 
+    let mut info_pipe = Command::new(&ffmpeg_path)
+        .args(&vidcommand)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect("Failed to execute command");
 
-    info_pipe.kill().expect("Failed to kill ffmpeg process");
-    info_pipe.wait_with_output().expect("Failed to wait for process");
-    
+    let mut vid_frame = vec![0u8; (output_width * output_height * 3) as usize];
+
+    // Read data from the pipe into the vid_frame vector
+    let mut stdout = info_pipe.stdout.take().unwrap();
+    stdout.read_exact(&mut vid_frame).unwrap();
+
+    // let screenshot_data = encode_config(&xdata, STANDARD);
     // let screenshot_data = Base64Display::new(&xdata, &STANDARD);
-    // let encoded_data = format!("data:image/png;base64,{}", screenshot_data);
 
-    // // let my_struct = MyStruct { my_field: 42 };
+    let screenshot_data = general_purpose::STANDARD.encode(&vid_frame);
 
-    // let main_window = app.get_window("main").unwrap();
+    // println!("data:image/png;base64,{}", screenshot_data);
 
-    // let payload = Payload { picture_data: encoded_data };
-    // main_window.emit_all("screenshotEvent", payload).unwrap();
+    info_pipe.kill().unwrap();
+    info_pipe.wait_with_output().unwrap();
 
+    println!("data:image/png;base64,{}", screenshot_data);
 
+    ScreenshotResponse {
+        data: format!("data:image/png;base64,{}", screenshot_data),
+    }
+}
 
+// let response = ScreenshotResponse {
+//     data: format!("data:image/png;base64,{}", screenshot_data),
+// };
 
-    let screenshot_data = Base64Display::new(&xdata, &STANDARD);
-    // let picture_data = format!("data:image/png;base64,{}", screenshot_data);
+// serde_json::to_string(&response).unwrap()
 
-    // acquire a lock on the mutex
-    let mut payload = PAYLOAD.lock().unwrap();
+// #[derive(serde::Serialize)]
+// serialize(format!("data:image/png;base64,{}", screenshot_data))
+
+// acquire a lock on the mutex
+// let mut payload = PAYLOAD.lock().unwrap();
 
 // modify the picture_data field
-// payload.picture_data = "some picture data".to_string();
-    payload.picture_data = format!("data:image/png;base64,{}", screenshot_data);
-    // Payload { picture_data }
-
-    // let payload: Payload;
-
-    // payload.picture_data = encoded_data;
-
-    // emit a custom event to the front-end with the encoded image data as the payload
-    // window.emit("screenshot", Payload::picture_data).expect("Failed to emit screenshot event");
-}
+// payload.picture_data = format!("data:image/png;base64,{}", screenshot_data);
+// }
 
 // #[tauri::command]
 // pub fn get_screenshot( window: Window) -> String {
@@ -703,3 +732,100 @@ let mut info_pipe = Command::new(&ffmpeg_path)
 
 //     payload.picture_data
 // }
+*/
+
+#[tauri::command]
+pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
+    let ffmpeg_path = sidecar_path("ffmpeg");
+    let output_width = 96;
+    let output_height = 64;
+
+    // Build the ffmpeg command to extract a single frame of video data
+    // let vidcommand = vec![
+    //     "-ss", // Seek to a specific timestamp in the video
+    //     "00:00:01",
+    //     "-i", // Specify the input file
+    //     options.path,
+    //     "-f", // Force the output format to image2pipe
+    //     "image2pipe",
+    //     "-vf", // Apply a video filter to scale the output to a specific size
+    //     "scale=192:128",
+    //     "-pix_fmt", // Specify the output pixel format
+    //     "rgb24",
+    //     "-vcodec", // Specify the output codec
+    //     "rawvideo",
+    //     "-", // Output the raw data to stdout
+    // ];
+
+    let mut ffmpeg_cmd = Command::new("ffmpeg")
+        .args(&[
+            "-ss",
+            "00:00:01",
+            "-i",
+            options.path,
+            "-frames:v",
+            "1",
+            "-vf",
+            "scale=192:128",
+            "-pix_fmt",
+            "rgb24",
+            "-f",
+            "rawvideo",
+            "-",
+        ])
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to execute command");
+
+    println!("PATH: {}", options.path);
+
+    let mut ffmpeg_output = Vec::new();
+    ffmpeg_cmd
+        .stdout
+        .take()
+        .unwrap()
+        .read_to_end(&mut ffmpeg_output)
+        .unwrap();
+
+    /*
+    // Start the ffmpeg process and capture its stdout stream
+    let mut info_pipe = Command::new(&ffmpeg_path)
+        .args(&vidcommand)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect("Failed to execute command");
+
+    // Create a buffer for storing the raw video frame data read from ffmpeg
+    let mut vid_frame = vec![0u8; (output_width * 2 * output_height * 2) * 3];
+
+    // Read the raw video frame data from ffmpeg into the buffer
+    info_pipe
+        .stdout
+        .as_mut()
+        .unwrap()
+        .read_exact(&mut vid_frame)
+        .unwrap();
+
+    // Build the PPM format header for the raw video frame data
+    let mut xdata = format!("P6 {} {} 255 ", output_width * 2, output_height * 2).into_bytes();
+
+    // Append the raw video frame data to the PPM format header
+    xdata.extend_from_slice(&vid_frame);
+    */
+
+    // Encode the PPM data as base64 and return the result
+    let screenshot_data = base64::encode(&ffmpeg_output);
+
+    // println!("data:image/png;base64,{}", screenshot_data);
+
+    // let my_string = "Hello, world!".to_string();
+
+    // let string
+
+    ScreenshotResponse {
+        data: format!("data:image/png;base64,{}", screenshot_data),
+        // data: my_string,
+    }
+}

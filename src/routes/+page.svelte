@@ -5,11 +5,9 @@
   import EditForm from '$components/EditForm.svelte'
   import FileInput from '$components/FileInput.svelte'
   import { inputError, inputPath } from '$stores/file'
-  import {  Crop, crop,  } from '$stores/options'
+  import { Crop, crop } from '$stores/options'
   // import { type Options, scale } from '$stores/options'
   // import Loading from '~icons/tabler/loader-2'
-
-
 
   const videoObjectFit = {
     [Crop.Contain]: 'object-contain',
@@ -20,31 +18,19 @@
   // let duration: number
   let videoWidth: number
   let videoHeight: number
-
-
-
-
-
-
-  
-
-
-
 </script>
 
-
-
 {#if $inputPath === undefined}
-  
-<div
+  <div
     in:fade={{ delay: 300, duration: 300 }}
     out:fade={{ duration: 300 }}
-    class="flex flex-col h-full items-center justify-center"
+    class="flex h-full flex-col items-center justify-center"
   >
-  <FileInput />
-  <br>
+    <FileInput />
+
+    <br />
     {#if $inputError !== undefined}
-      <p class="whitespace-pre">     
+      <p class="whitespace-pre">
         {$inputError}
       </p>
     {/if}
@@ -69,7 +55,7 @@
           class="h-full w-full rounded-md {videoObjectFit[$crop]}"
         />
       </div>
-<!-- 
+      <!-- 
       <canvas bind:this={canvas} style="display:none; border: 1px solid white;"></canvas>
       <img src="{imageSrc}" alt="Snapshot" style="border: 1px solid pink;"> -->
       <!-- <img src="/Users/rena/Documents/TinyTV-Tested-Video-Thumbnail.jpg" alt="imagejjk" style="border: 1px solid blue;">  -->
