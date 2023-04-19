@@ -24,6 +24,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Result, Value};
 use std::fs::File;
 use std::io::prelude::*;
+use image::{ColorType, ImageBuffer, ImageFormat};
+use image::{Rgb, Rgba};
+use image::buffer::ConvertBuffer;
+use image::DynamicImage;
 
 // the payload type must implement `Serialize` and `Clone`.
 #[derive(Clone, serde::Serialize)]
@@ -737,8 +741,72 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
 #[tauri::command]
 pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
     let ffmpeg_path = sidecar_path("ffmpeg");
-    let output_width = 96;
-    let output_height = 64;
+
+// THIS WORKS:
+// ffmpeg -ss 00:00:00 -i hj.mp4 -s 192x128 -pix_fmt rgb24 -vcodec rawvideo -f rawvideo output.rgb24
+
+
+    let mut ffmpeg_cmd = Command::new(&ffmpeg_path)
+        .args(&[
+            "-ss",
+            "00:00:00",
+            "-i",
+            options.path,
+            "-s", "192x128",
+            "-pix_fmt",
+            "rgb24",
+            "-vcodec",
+            "rawvideo",
+            "-f",
+            "rawvideo",
+            "-",
+        ])
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to execute command");
+
+    println!("PATH: {}", options.path);
+
+    let mut rgb_data: Vec<u8> = Vec::new();
+    ffmpeg_cmd
+        .stdout
+        .take()
+        .unwrap()
+        .read_to_end(&mut rgb_data)
+        .unwrap();
+
+
+    // Convert RGB24 data to PNG format
+
+let width = 192;
+let height = 128;
+
+let img_buf = ImageBuffer::<image::Rgb<u8>, _>::from_raw(width, height, rgb_data).unwrap();
+let mut rgba_img = DynamicImage::ImageRgb8(img_buf).into_rgba8();
+
+// Set the alpha channel to 255 (fully opaque)
+for pixel in rgba_img.chunks_exact_mut(4) {
+    pixel[3] = 255;
+}
+
+let mut png_data = Vec::new();
+let encoder = image::codecs::png::PngEncoder::new(&mut png_data);
+encoder
+    .encode(
+        &rgba_img,
+        width as u32,
+        height as u32,
+        image::ColorType::Rgba8,
+    )
+    .unwrap();
+
+
+let screenshot_data = base64::encode(&png_data);
+
+    ScreenshotResponse {
+        data: screenshot_data,
+    }
+}
 
     // Build the ffmpeg command to extract a single frame of video data
     // let vidcommand = vec![
@@ -757,35 +825,7 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
     //     "-", // Output the raw data to stdout
     // ];
 
-    let mut ffmpeg_cmd = Command::new("ffmpeg")
-        .args(&[
-            "-ss",
-            "00:00:01",
-            "-i",
-            options.path,
-            "-frames:v",
-            "1",
-            "-vf",
-            "scale=192:128",
-            "-pix_fmt",
-            "rgb24",
-            "-f",
-            "rawvideo",
-            "-",
-        ])
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to execute command");
 
-    println!("PATH: {}", options.path);
-
-    let mut ffmpeg_output = Vec::new();
-    ffmpeg_cmd
-        .stdout
-        .take()
-        .unwrap()
-        .read_to_end(&mut ffmpeg_output)
-        .unwrap();
 
     /*
     // Start the ffmpeg process and capture its stdout stream
@@ -814,18 +854,3 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
     // Append the raw video frame data to the PPM format header
     xdata.extend_from_slice(&vid_frame);
     */
-
-    // Encode the PPM data as base64 and return the result
-    let screenshot_data = base64::encode(&ffmpeg_output);
-
-    // println!("data:image/png;base64,{}", screenshot_data);
-
-    // let my_string = "Hello, world!".to_string();
-
-    // let string
-
-    ScreenshotResponse {
-        data: format!("data:image/png;base64,{}", screenshot_data),
-        // data: my_string,
-    }
-}

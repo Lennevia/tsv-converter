@@ -167,6 +167,5 @@
   <span class:invisible={loading}>Select a video</span>
 </button>
 {#if imageData}
-  <p>{imageData}</p>
-  <img src={imageData} alt="Screenshot" />
+  <img src="data:image/x-rgba;base64,{imageData}" alt="Screenshot" />
 {/if}
