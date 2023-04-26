@@ -7,7 +7,8 @@
     "distDir": "../build",
     "devPath": "http://localhost:3000",
     "beforeDevCommand": "yarn vite",
-    "beforeBuildCommand": "yarn vite build"
+    "beforeBuildCommand": "yarn vite build",
+    "withGlobalTauri": true
   },
   "tauri": {
     "bundle": {
@@ -87,7 +88,8 @@
       }
     ],
     "security": {
-      "csp": "img-src 'self' data: file:; default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
+      "csp": "img-src 'self' data: file: blob:; default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
     }
+    
   }
 }

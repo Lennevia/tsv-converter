@@ -4,20 +4,28 @@
 
   import EditForm from '$components/EditForm.svelte'
   import FileInput from '$components/FileInput.svelte'
-  import { inputError, inputPath } from '$stores/file'
+  // import { inputError, inputPath, imageDataStore } from '$stores/file'
+  import { inputError, inputPath} from '$stores/file'
   import { Crop, crop } from '$stores/options'
-  // import { type Options, scale } from '$stores/options'
-  // import Loading from '~icons/tabler/loader-2'
 
+// This is code for the video element that is commented out later in the program - removed for preference of screenshot function in rust
   const videoObjectFit = {
     [Crop.Contain]: 'object-contain',
     [Crop.Cover]: 'object-cover',
     [Crop.Fill]: 'object-fill'
   }
 
-  // let duration: number
-  let videoWidth: number
-  let videoHeight: number
+//   // // let duration: number
+  // let videoWidth: number
+  // let videoHeight: number
+
+// let imageData = imageDataStore;
+
+// const imageObjectFit = {
+//     [Crop.Contain]: 'contain',
+//     [Crop.Cover]: 'cover',
+//     [Crop.Fill]: 'fill'
+//   }
 </script>
 
 {#if $inputPath === undefined}
@@ -43,15 +51,28 @@
   >
     <!-- left group -->
     <div class="w-1/2 space-y-2">
+
+      <!-- <div class="h-full w-full rounded-md {videoObjectFit[$crop]}"> -->
+      <FileInput />
+
+  <!-- {#if $imageDataStore}
+  <div class="flex aspect-[3/2] items-center justify-center rounded-md bg-black">
+    <img src="data:image/x-rgba;base64,{$imageDataStore}" alt="Screenshot" class="h-full w-full rounded-md object-{imageObjectFit[$crop]}"/>
+  </div>
+  {:else}
+    <p>Please select a file.</p>
+  {/if} -->
+
+    <!-- </div> -->
+
       <div class="flex aspect-[3/2] items-center justify-center rounded-md bg-black">
+   
         <!-- svelte-ignore a11y-media-has-caption -->
         <video
           src={convertFileSrc($inputPath)}
           controls
           loop
           preload="auto"
-          bind:videoHeight
-          bind:videoWidth
           class="h-full w-full rounded-md {videoObjectFit[$crop]}"
         />
       </div>
@@ -60,13 +81,15 @@
       <img src="{imageSrc}" alt="Snapshot" style="border: 1px solid pink;"> -->
       <!-- <img src="/Users/rena/Documents/TinyTV-Tested-Video-Thumbnail.jpg" alt="imagejjk" style="border: 1px solid blue;">  -->
       <!-- <img src="https://cdn.shopify.com/s/files/1/1125/2198/products/greythumby1065x1065-min_1800x1800.jpg?v=1674158925" alt="test" style="border: 1px solid orange;">  -->
-      <div style="overflow-wrap: break-word"><b>Input Path:</b> {$inputPath}</div>
+      <div style="overflow-wrap: break-word"><b>Video from Input Path:</b> {$inputPath}</div>
     </div>
 
     <!-- right group -->
     <div class="w-1/2 space-y-2">
-      <FileInput />
+      
       <EditForm />
     </div>
   </div>
 {/if}
+
+

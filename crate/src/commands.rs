@@ -1,53 +1,15 @@
 //! Tauri commands.
 
-use std::fs::{self, OpenOptions};
-use std::io::{BufWriter, Read, Write};
+// use std::fs::{self, OpenOptions};
+// use std::io::{BufWriter, Read, Write};
+use std::fs::{self};
+use std::io::{Read};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 #[cfg(debug_assertions)]
 use std::time::Instant;
-// use serde_json::json;
-// use base64::encode_config;
-// use base64::{Engine, engine::general_purpose, alphabet};
-// use base64::{Engine as _, engine::general_purpose};
-// use base64::{display::Base64Display, engine::general_purpose::STANDARD};
-use base64::{engine::general_purpose, Engine as _};
-// use web_sys::window;
-// use tauri::window::Window;
-// use tauri::event::emit;
-use tauri::Window;
-// use main::Payload;
-use lazy_static::lazy_static;
-use std::sync::Mutex;
-// extern crate lazy_static;
-use serde::{Deserialize, Serialize};
-use serde_json::{Result, Value};
-use std::fs::File;
-use std::io::prelude::*;
-use image::{ColorType, ImageBuffer, ImageFormat};
-use image::{Rgb, Rgba};
-use image::buffer::ConvertBuffer;
+use image::{ImageBuffer};
 use image::DynamicImage;
-
-// the payload type must implement `Serialize` and `Clone`.
-#[derive(Clone, serde::Serialize)]
-pub struct Payload {
-    pub picture_data: String,
-}
-
-// #[derive(Clone, serde::Serialize)]
-lazy_static! {
-    pub static ref PAYLOAD: Mutex<Payload> = Mutex::new(Payload {
-        picture_data: String::new(),
-    });
-}
-
-// use tide::new;
-
-// use byte_array::ByteArray;
-// use libmath::round;
-use notify::{Config, EventKind, RecursiveMode, Watcher};
-use tauri::async_runtime;
 use time::OffsetDateTime;
 
 #[cfg(windows)]
@@ -76,7 +38,8 @@ pub struct Options<'a> {
 
     // Video
     frame_rate: &'a str,
-    video_frame_bytes: usize,
+    // The following 4 variables are remnants of the TSV conversion, left in if ever interested in backwards compatibility
+    video_frame_bytes: usize, 
 
     // Audio
     sample_bit_depth: u8,
@@ -112,6 +75,7 @@ pub fn metadata(path: &Path) -> Metadata {
 }
 
 /// Watches a file path for modify/remove events, and forwards the event to the frontend.
+/// Removed, even though it's great!, because it breaks with MacOS Finder
 // #[tauri::command]
 // pub async fn watch(path: PathBuf, window: tauri::Window) {
 //     let (tx, mut rx) = async_runtime::channel(1); // Channel for modified/removed file
@@ -186,7 +150,7 @@ fn sidecar_path(name: &str) -> PathBuf {
 }
 
 /*
-/// Convert to Tiny Screen Video .tsv filetype.
+/// Convert to Tiny Screen Video .tsv filetype - this code is commented out because the audio doesn't work!
 #[tauri::command]
 pub fn convert(options: Options<'_>) {
     // let path = Path::new(&options.path);
@@ -612,139 +576,24 @@ pub fn convert_diy_avi(options: Options<'_>) {
     }
 }
 
-#[derive(Serialize)]
+/// Used in ccreenshot function - data must be serialized to pass it to svelte frontend
+#[derive(serde::Serialize)]
 pub struct ScreenshotResponse {
     pub data: String,
 }
 
-/// Take a screen capture of the video to display in the app for UI/UX
-/// ffmpeg -ss 01:23:45 -i input -frames:v 1 -q:v 2 output.jpg
-/// from: https://stackoverflow.com/questions/27568254/how-to-extract-1-screenshot-for-a-video-with-ffmpeg-at-a-given-time
-///
-/*
-#[tauri::command]
+
+// Take a video frame from a video using ffmpeg given the input path of the video
+// Return the video frame after a few levels of encoding (rgb24 from ffmpeg stream -> png vector -> base64)
+/*#[tauri::command]
 pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
     let ffmpeg_path = sidecar_path("ffmpeg");
-    // let preview_time = "00:00:00"; // example preview time
-    let output_width = 192; // example output width
-    let output_height = 128; // example output height
 
-    let vidcommand = vec![
-        "-ss",
-        "00:00:00",
-        "-i",
-        options.path,
-        // "-ss",
-        // "1",
-        "-f",
-        "image2pipe",
-        "-vf",
-        "scale=192:128",
-        "-pix_fmt",
-        "rgb24",
-        "-vcodec",
-        "rawvideo",
-        "-",
-    ];
-
-    // let mut info_pipe = Command::new(&ffmpeg_path)
-    //     .args(&vidcommand)
-    //     .stdin(Stdio::piped())
-    //     .stdout(Stdio::piped())
-    //     .stderr(Stdio::piped())
-    //     .spawn()
-    //     .expect("Failed to execute command");
-
-    // windows creation flag CREATE_NO_WINDOW: stops the process from creating a CMD window
-    // https://docs.microsoft.com/en-us/windows/win32/procthread/process-creation-flags
-    // #[cfg(windows)]
-    // info_pipe.creation_flags(0x08000000);
-
-    // Create a buffer for storing the raw video frame data read from ffmpeg:
-    // vid_frame is a vector initialized with length (output_width * 2 * output_height * 2) * 3 and filled with zeros
-    // The output_width * 2 * output_height * 2 expression calculates the number of pixels in the frame, and * 3 accounts
-    // for the three color channels (red, green, blue) that are encoded in each pixel.
-    /*let mut vid_frame = vec![0u8; (output_width * 2 * output_height * 2) * 3];
-
-        // From the ffmpeg terminal, collect the image data into the vid_frame vector
-        info_pipe
-            .stdout
-            .as_mut()
-            .unwrap()
-            .read_exact(&mut vid_frame)
-            .unwrap();
-
-        let mut xdata = format!("P6 {} {} 255 ", output_width * 2, output_height * 2).into_bytes();
-        xdata.extend_from_slice(&vid_frame);
-
-        info_pipe.kill().expect("Failed to kill ffmpeg process");
-        info_pipe
-            .wait_with_output()
-            .expect("Failed to wait for process");
-    */
-
-    let mut info_pipe = Command::new(&ffmpeg_path)
-        .args(&vidcommand)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .spawn()
-        .expect("Failed to execute command");
-
-    let mut vid_frame = vec![0u8; (output_width * output_height * 3) as usize];
-
-    // Read data from the pipe into the vid_frame vector
-    let mut stdout = info_pipe.stdout.take().unwrap();
-    stdout.read_exact(&mut vid_frame).unwrap();
-
-    // let screenshot_data = encode_config(&xdata, STANDARD);
-    // let screenshot_data = Base64Display::new(&xdata, &STANDARD);
-
-    let screenshot_data = general_purpose::STANDARD.encode(&vid_frame);
-
-    // println!("data:image/png;base64,{}", screenshot_data);
-
-    info_pipe.kill().unwrap();
-    info_pipe.wait_with_output().unwrap();
-
-    println!("data:image/png;base64,{}", screenshot_data);
-
-    ScreenshotResponse {
-        data: format!("data:image/png;base64,{}", screenshot_data),
-    }
-}
-
-// let response = ScreenshotResponse {
-//     data: format!("data:image/png;base64,{}", screenshot_data),
-// };
-
-// serde_json::to_string(&response).unwrap()
-
-// #[derive(serde::Serialize)]
-// serialize(format!("data:image/png;base64,{}", screenshot_data))
-
-// acquire a lock on the mutex
-// let mut payload = PAYLOAD.lock().unwrap();
-
-// modify the picture_data field
-// payload.picture_data = format!("data:image/png;base64,{}", screenshot_data);
-// }
-
-// #[tauri::command]
-// pub fn get_screenshot( window: Window) -> String {
-//     let mut payload = PAYLOAD.lock().unwrap();
-
-//     payload.picture_data
-// }
-*/
-
-#[tauri::command]
-pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
-    let ffmpeg_path = sidecar_path("ffmpeg");
+// Debugging
+// println!("PATH RECEIVED: {}", options.path);
 
 // THIS WORKS:
 // ffmpeg -ss 00:00:00 -i hj.mp4 -s 192x128 -pix_fmt rgb24 -vcodec rawvideo -f rawvideo output.rgb24
-
 
     let mut ffmpeg_cmd = Command::new(&ffmpeg_path)
         .args(&[
@@ -752,7 +601,7 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
             "00:00:00",
             "-i",
             options.path,
-            "-s", "192x128",
+            "-s", "300x200",
             "-pix_fmt",
             "rgb24",
             "-vcodec",
@@ -765,8 +614,6 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
         .spawn()
         .expect("Failed to execute command");
 
-    println!("PATH: {}", options.path);
-
     let mut rgb_data: Vec<u8> = Vec::new();
     ffmpeg_cmd
         .stdout
@@ -775,11 +622,9 @@ pub fn screenshot(options: Options<'_>) -> ScreenshotResponse {
         .read_to_end(&mut rgb_data)
         .unwrap();
 
-
-    // Convert RGB24 data to PNG format
-
-let width = 192;
-let height = 128;
+// Convert RGB24 data to PNG format - keep a 3:2 aspect that looks good in the app (app is 750x500 for reference)
+let width = 300;
+let height = 200;
 
 let img_buf = ImageBuffer::<image::Rgb<u8>, _>::from_raw(width, height, rgb_data).unwrap();
 let mut rgba_img = DynamicImage::ImageRgb8(img_buf).into_rgba8();
@@ -789,6 +634,7 @@ for pixel in rgba_img.chunks_exact_mut(4) {
     pixel[3] = 255;
 }
 
+// Encode rgb24 data to a vector of png, but manually
 let mut png_data = Vec::new();
 let encoder = image::codecs::png::PngEncoder::new(&mut png_data);
 encoder
@@ -800,57 +646,17 @@ encoder
     )
     .unwrap();
 
-
+// Encode to base64
 let screenshot_data = base64::encode(&png_data);
 
+// Debugging
+let sub = &screenshot_data[..20]; // just the first 20 characters
+println!("RETURNING THE ENCODED STRING NOW");
+println!("{}", sub);
+
+// Return
     ScreenshotResponse {
         data: screenshot_data,
     }
 }
-
-    // Build the ffmpeg command to extract a single frame of video data
-    // let vidcommand = vec![
-    //     "-ss", // Seek to a specific timestamp in the video
-    //     "00:00:01",
-    //     "-i", // Specify the input file
-    //     options.path,
-    //     "-f", // Force the output format to image2pipe
-    //     "image2pipe",
-    //     "-vf", // Apply a video filter to scale the output to a specific size
-    //     "scale=192:128",
-    //     "-pix_fmt", // Specify the output pixel format
-    //     "rgb24",
-    //     "-vcodec", // Specify the output codec
-    //     "rawvideo",
-    //     "-", // Output the raw data to stdout
-    // ];
-
-
-
-    /*
-    // Start the ffmpeg process and capture its stdout stream
-    let mut info_pipe = Command::new(&ffmpeg_path)
-        .args(&vidcommand)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .spawn()
-        .expect("Failed to execute command");
-
-    // Create a buffer for storing the raw video frame data read from ffmpeg
-    let mut vid_frame = vec![0u8; (output_width * 2 * output_height * 2) * 3];
-
-    // Read the raw video frame data from ffmpeg into the buffer
-    info_pipe
-        .stdout
-        .as_mut()
-        .unwrap()
-        .read_exact(&mut vid_frame)
-        .unwrap();
-
-    // Build the PPM format header for the raw video frame data
-    let mut xdata = format!("P6 {} {} 255 ", output_width * 2, output_height * 2).into_bytes();
-
-    // Append the raw video frame data to the PPM format header
-    xdata.extend_from_slice(&vid_frame);
-    */
+*/

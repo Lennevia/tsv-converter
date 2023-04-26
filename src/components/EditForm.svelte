@@ -28,15 +28,18 @@
     loading = true
 
     if ($inputPath === undefined || $outputName === undefined) return
-
+    
     // Trigger save dialog before a video conversion
     $savePath = await save({
       defaultPath: `${$outputName}`,
       filters: [
-        // TODO - this is where I would add on the titles "96x64" and remove the tsv extension
+        // Note - the tsv extension could be added for backwards compatibility for the 96x94 screen here
         {
-          name: `.${$model === Model.Tv96x64 ? 'avi' : 'avi'}`,
-          extensions: [`${$model === Model.Tv96x64 ? 'avi' : 'avi'}`]
+          // name: `.${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`,
+          // extensions: [`${$model === Model.Tv96x64 ? 'tsv' : 'avi'}`]
+          name: '.avi',
+          extensions: ['avi']
+
         }
       ]
     })
@@ -78,27 +81,10 @@
   // Progress bar ideas:
   // https://devdojo.com/tnylea/creating-a-progress-bar-with-tailwind
   // https://github.com/tauri-apps/tauri/discussions/4069
-  // let progress = 0
-  // let intervalSpeed = 10
-  // let incrementSpeed = 1
-  // const intervalSpeed = 10
-  // const incrementSpeed = 1
-  // document.addEventListener('DOMContentLoaded', function () {
-  //   let bar = document.getElementById('bar')
-  //   progressInterval = setInterval(function () {
-  //     progress += incrementSpeed
-  //     bar.style.width = progress + '%'
-  //     if (progress >= 100) {
-  //       clearInterval(progressInterval)
-  //     }
-  //   }, intervalSpeed)
-  // })
+
 </script>
 
 <form on:submit|preventDefault={convert} class="flex flex-col items-start space-y-2">
-
-  <!-- <img src="screenshot.jpg" alt="Italian Trulli"> -->
-  <!-- <img src="/path/to/output/image.ppm" alt="screen capture"/> -->
 
   <!-- TV model selection -->
   <fieldset class="form-fieldset flex flex-col items-start">

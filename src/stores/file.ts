@@ -4,6 +4,7 @@ import { writable } from 'svelte/store'
 
 export const inputPath = writable<string | undefined>()
 export const inputError = writable<string | undefined>()
+// export const imageDataStore = writable<string | undefined>()
 
 export const inputName = writable<string | undefined>()
 export const outputName = writable<string | undefined>()
