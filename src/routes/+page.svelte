@@ -5,27 +5,27 @@
   import EditForm from '$components/EditForm.svelte'
   import FileInput from '$components/FileInput.svelte'
   // import { inputError, inputPath, imageDataStore } from '$stores/file'
-  import { inputError, inputPath} from '$stores/file'
+  import { inputError, inputPath } from '$stores/file'
   import { Crop, crop } from '$stores/options'
 
-// This is code for the video element that is commented out later in the program - removed for preference of screenshot function in rust
+  // This is code for the video element that is commented out later in the program - removed for preference of screenshot function in rust
   const videoObjectFit = {
     [Crop.Contain]: 'object-contain',
     [Crop.Cover]: 'object-cover',
     [Crop.Fill]: 'object-fill'
   }
 
-//   // // let duration: number
+  //   // // let duration: number
   // let videoWidth: number
   // let videoHeight: number
 
-// let imageData = imageDataStore;
+  // let imageData = imageDataStore;
 
-// const imageObjectFit = {
-//     [Crop.Contain]: 'contain',
-//     [Crop.Cover]: 'cover',
-//     [Crop.Fill]: 'fill'
-//   }
+  // const imageObjectFit = {
+  //     [Crop.Contain]: 'contain',
+  //     [Crop.Cover]: 'cover',
+  //     [Crop.Fill]: 'fill'
+  //   }
 </script>
 
 {#if $inputPath === undefined}
@@ -51,11 +51,10 @@
   >
     <!-- left group -->
     <div class="w-1/2 space-y-2">
-
       <!-- <div class="h-full w-full rounded-md {videoObjectFit[$crop]}"> -->
       <FileInput />
 
-  <!-- {#if $imageDataStore}
+      <!-- {#if $imageDataStore}
   <div class="flex aspect-[3/2] items-center justify-center rounded-md bg-black">
     <img src="data:image/x-rgba;base64,{$imageDataStore}" alt="Screenshot" class="h-full w-full rounded-md object-{imageObjectFit[$crop]}"/>
   </div>
@@ -63,10 +62,9 @@
     <p>Please select a file.</p>
   {/if} -->
 
-    <!-- </div> -->
+      <!-- </div> -->
 
       <div class="flex aspect-[3/2] items-center justify-center rounded-md bg-black">
-   
         <!-- svelte-ignore a11y-media-has-caption -->
         <video
           src={convertFileSrc($inputPath)}
@@ -86,10 +84,7 @@
 
     <!-- right group -->
     <div class="w-1/2 space-y-2">
-      
       <EditForm />
     </div>
   </div>
 {/if}
-
-

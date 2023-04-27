@@ -2,14 +2,14 @@
 
 // use std::fs::{self, OpenOptions};
 // use std::io::{BufWriter, Read, Write};
+use image::DynamicImage;
+use image::ImageBuffer;
 use std::fs::{self};
-use std::io::{Read};
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 #[cfg(debug_assertions)]
 use std::time::Instant;
-use image::{ImageBuffer};
-use image::DynamicImage;
 use time::OffsetDateTime;
 
 #[cfg(windows)]
@@ -39,7 +39,7 @@ pub struct Options<'a> {
     // Video
     frame_rate: &'a str,
     // The following 4 variables are remnants of the TSV conversion, left in if ever interested in backwards compatibility
-    video_frame_bytes: usize, 
+    video_frame_bytes: usize,
 
     // Audio
     sample_bit_depth: u8,
@@ -576,12 +576,11 @@ pub fn convert_diy_avi(options: Options<'_>) {
     }
 }
 
-/// Used in ccreenshot function - data must be serialized to pass it to svelte frontend
-#[derive(serde::Serialize)]
-pub struct ScreenshotResponse {
-    pub data: String,
-}
-
+// Used in screenshot function - data must be serialized to pass it to svelte frontend
+// #[derive(serde::Serialize)]
+// pub struct ScreenshotResponse {
+//     pub data: String,
+// }
 
 // Take a video frame from a video using ffmpeg given the input path of the video
 // Return the video frame after a few levels of encoding (rgb24 from ffmpeg stream -> png vector -> base64)

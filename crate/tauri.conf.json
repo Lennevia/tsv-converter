@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "TinyTV® Video Converter",
-    "version": "0.1.1"
+    "version": "0.1.2"
   },
   "build": {
     "distDir": "../build",
@@ -39,7 +39,6 @@
         "signingIdentity": null,
         "providerShortName": null,
         "entitlements": null
-
       },
       "windows": {
         "certificateThumbprint": null,
@@ -90,6 +89,5 @@
     "security": {
       "csp": "img-src 'self' data: file: blob:; default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
     }
-    
   }
 }
