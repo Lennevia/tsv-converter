@@ -47,8 +47,8 @@ todo:
    yarn dev
    ```
 
-4. View other available scripts:
+# Other helpful scripts:
 
-   ```sh
-   yarn run
-   ```
+* `cargo clean` - Remove artifacts from the target directory that Cargo has generated in the past. 
+* `yarn build --verbose` - Gives more error description when building the application. 
+* `rustc --version` - Check your version of rust.
